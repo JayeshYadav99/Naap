@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Measurement Book</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: counter-first. Entry box + confirmation card on the left (the one primary action), due list on the right; stacks on phones. Tape-measure strip is the only ornament. */
+:root {
+  --bg: #F2F4F8;
+  --surface: #FFFFFF;
+  --sunk: #E8ECF3;
+  --ink: #172033;
+  --muted: #586179;
+  --line: #D6DCE6;
+  --denim: #2A4B8D;
+  --on-denim: #FFFFFF;
+  --tape: #F2C230;
+  --tape-ink: #3B2F07;
+  --warn: #9A4A06;
+  --warn-bg: #FFF1D6;
+  --danger: #B42318;
+  --danger-bg: #FDE8E6;
+  --ok: #1D6E46;
+  --ok-bg: #E1F3E8;
+  --info-bg: #E5ECFA;
+
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1420; --surface: #161E2E; --sunk: #1D2740; --ink: #E9EDF5; --muted: #9AA5BC; --line: #2A3552;
+    --denim: #93B2F2; --on-denim: #0E1420; --tape: #E9BB2B; --tape-ink: #2A2105;
+    --warn: #F5B861; --warn-bg: #36270E; --danger: #FF928A; --danger-bg: #3A1917; --ok: #74D4A2; --ok-bg: #11301F; --info-bg: #1C2A48;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1420; --surface: #161E2E; --sunk: #1D2740; --ink: #E9EDF5; --muted: #9AA5BC; --line: #2A3552;
+  --denim: #93B2F2; --on-denim: #0E1420; --tape: #E9BB2B; --tape-ink: #2A2105;
+  --warn: #F5B861; --warn-bg: #36270E; --danger: #FF928A; --danger-bg: #3A1917; --ok: #74D4A2; --ok-bg: #11301F; --info-bg: #1C2A48;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 18px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+h1, h2, h3 { font-family: var(--f-display); margin: 0; text-wrap: balance; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--denim); outline-offset: 2px; }
+.num { font-variant-numeric: tabular-nums; }
+.wrap { max-width: 1240px; margin: 0 auto; }
+
+/* Top bar */
+.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding-block: 20px 16px; }
+.brand { display: flex; flex-direction: column; }
+.brand h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.01em; }
+.brand span { color: var(--muted); font-size: 0.95rem; }
+nav { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+nav button {
+  border: 0; background: transparent; padding: 10px 16px; border-radius: 999px; font-weight: 700; color: var(--muted);
+}
+nav button[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.mock-note { font-size: 0.85rem; color: var(--muted); background: var(--sunk); border-radius: var(--r); padding: 8px 12px; margin-bottom: 16px; }
+
+/* Home layout */
+.home { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .home { grid-template-columns: 1fr; } }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
+
+/* Voice box */
+.voice { overflow: hidden; }
+.tape {
+  height: 22px; background-color: var(--tape);
+  background-image:
+    repeating-linear-gradient(90deg, var(--tape-ink) 0 2px, transparent 2px 64px),
+    repeating-linear-gradient(90deg, var(--tape-ink) 0 1px, transparent 1px 16px),
+    repeating-linear-gradient(90deg, var(--tape-ink) 0 1px, transparent 1px 8px);
+  background-size: 100% 14px, 100% 9px, 100% 5px;
+  background-repeat: repeat-x; background-position: 0 0;
+  opacity: 0.92;
+}
+.voice-body { padding: 18px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
+.voice label { font-weight: 700; font-size: 0.95rem; color: var(--muted); letter-spacing: 0.02em; }
+#entry {
+  width: 100%; min-height: 128px; resize: vertical; border: 2px solid var(--line); border-radius: var(--r);
+  padding: 14px 16px; font-size: 1.3rem; background: var(--bg); line-height: 1.4;
+}
+#entry:focus { border-color: var(--denim); outline: none; }
+.entry-status { min-height: 1.4em; font-size: 0.95rem; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1px dashed var(--denim); color: var(--denim); background: transparent; border-radius: 999px;
+  padding: 8px 14px; font-size: 0.95rem; font-weight: 700;
+}
+.chip:hover { background: var(--info-bg); }
+
+/* Confirmation card */
+.card { margin-top: 20px; padding: 20px; display: flex; flex-direction: column; gap: 18px; border-width: 2px; border-color: var(--denim); }
+.card-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: baseline; }
+.card-head h2 { font-size: 1.5rem; }
+.badge { font-size: 0.8rem; font-weight: 700; border-radius: 999px; padding: 4px 10px; letter-spacing: 0.03em; text-transform: uppercase; }
+.b-info { background: var(--info-bg); color: var(--denim); }
+.b-warn { background: var(--warn-bg); color: var(--warn); }
+.section-label { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.field {
+  border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg);
+  display: flex; flex-direction: column; gap: 2px; min-width: 0;
+}
+.field .k { font-size: 0.85rem; color: var(--muted); }
+.field .v { font-size: 1.55rem; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.field .v small { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
+.field .sub { font-size: 0.82rem; color: var(--muted); }
+.field.missing { border: 2px dashed var(--warn); background: var(--warn-bg); }
+.field.missing .v { color: var(--warn); font-size: 1.1rem; }
+.field.flag { border: 2px solid var(--danger); background: var(--danger-bg); }
+.field.flag .sub { color: var(--danger); font-weight: 700; }
+.field.empty .v { color: var(--muted); font-weight: 400; font-size: 1.1rem; }
+.field.changed { animation: pulse 1.4s ease-out; border-color: var(--ok); }
+@keyframes pulse { 0% { background: var(--ok-bg); } 100% { background: var(--bg); } }
+@media (prefers-reduced-motion: reduce) { .field.changed { animation: none; background: var(--ok-bg); } }
+.was { color: var(--denim); font-weight: 700; }
+.said { font-size: 0.95rem; color: var(--muted); background: var(--sunk); border-radius: 8px; padding: 10px 12px; }
+.said b { color: var(--ink); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { border-radius: var(--r); padding: 14px 22px; font-weight: 700; border: 2px solid transparent; font-size: 1.05rem; }
+.btn-primary { background: var(--denim); color: var(--on-denim); }
+.btn-ghost { background: transparent; border-color: var(--line); }
+.btn-quiet { background: transparent; color: var(--muted); }
+.log { font-size: 0.95rem; color: var(--ok); font-weight: 700; }
+
+/* Message panel */
+.msg { margin-top: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px; border-width: 2px; border-color: var(--ok); }
+.msg h2 { font-size: 1.35rem; }
+.bubble { background: var(--ok-bg); border-radius: 12px 12px 12px 2px; padding: 14px 16px; font-size: 1.05rem; }
+.msg a.btn { text-decoration: none; display: inline-block; }
+.hint { font-size: 0.9rem; color: var(--muted); }
+
+/* Due list */
+.due { padding: 18px 20px; display: flex; flex-direction: column; gap: 18px; }
+.due-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.due-head h2 { font-size: 1.35rem; }
+.filter-note { font-size: 0.9rem; color: var(--denim); font-weight: 700; }
+.group h3 { font-family: var(--f-body); font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.group h3 .count { background: var(--sunk); color: var(--ink); border-radius: 999px; padding: 1px 9px; letter-spacing: 0; }
+.group.overdue h3 { color: var(--danger); }
+.group.overdue h3 .count { background: var(--danger-bg); color: var(--danger); }
+.group.dim { opacity: 0.35; }
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center;
+  padding: 10px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line);
+}
+.group.overdue .row { border-left: 5px solid var(--danger); }
+.row .who { font-weight: 700; }
+.row .what { font-size: 0.9rem; color: var(--muted); }
+.row .right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.row .bal { font-size: 0.85rem; color: var(--muted); }
+.empty-group { font-size: 0.9rem; color: var(--muted); padding: 4px 2px; }
+.st { font-size: 0.78rem; font-weight: 700; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+.st-new { background: var(--sunk); color: var(--ink); }
+.st-cutting, .st-stitching { background: var(--info-bg); color: var(--denim); }
+.st-ready { background: var(--ok-bg); color: var(--ok); }
+.st-delivered { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+
+/* Board */
+.board-wrap { overflow-x: auto; padding-bottom: 8px; }
+.board { display: grid; grid-template-columns: repeat(5, minmax(200px, 1fr)); gap: 14px; min-width: 1040px; }
+.col { background: var(--sunk); border-radius: var(--r); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.col h3 { font-family: var(--f-body); font-size: 0.9rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; }
+.ocard { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; }
+.ocard .who { font-weight: 700; }
+.ocard .meta { font-size: 0.88rem; color: var(--muted); }
+.ocard.late { border-left: 5px solid var(--danger); }
+.board-tools { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: center; }
+.search { border: 2px solid var(--line); border-radius: var(--r); padding: 10px 14px; background: var(--surface); min-width: 0; flex: 1 1 260px; max-width: 420px; }
+
+/* Customer page */
+.cust { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 900px) { .cust { grid-template-columns: 1fr; } }
+.cust .panel { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.cust h2 { font-size: 1.6rem; }
+.compare { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.compare th, .compare td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); }
+.compare th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.compare td.n { font-size: 1.3rem; font-weight: 700; }
+.delta { font-size: 0.9rem; color: var(--warn); font-weight: 700; }
+.history { display: flex; flex-direction: column; gap: 8px; }
+.slip { border: 2px dashed var(--line); border-radius: 8px; padding: 14px; font-size: 0.95rem; display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; }
+.slip .k { color: var(--muted); }
+.tag { border: 2px solid var(--ink); border-radius: 8px; padding: 12px; text-align: center; font-family: var(--f-display); font-size: 1.4rem; font-weight: 800; line-height: 1.2; }
+.tag small { display: block; font-family: var(--f-body); font-size: 0.95rem; font-weight: 400; color: var(--muted); }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: var(--r); font-weight: 700;
+  max-width: calc(100% - 32px); z-index: 20;
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1 id="shopName">Sharma Tailors</h1>
+      <span id="today" class="num"></span>
+    </div>
+    <nav role="tablist" aria-label="Sections">
+      <button role="tab" aria-selected="true" data-view="home" id="tab-home">Today</button>
+      <button role="tab" aria-selected="false" data-view="board" id="tab-board">Orders</button>
+      <button role="tab" aria-selected="false" data-view="customer" id="tab-customer">Customers</button>
+    </nav>
+  </header>
+
+  <p class="mock-note">UI mockup with sample customers. The sample buttons play the spec's test sentences; the real app's parser will read any sentence.</p>
+
+  <!-- HOME -->
+  <section id="view-home" class="home">
+    <div>
+      <div class="panel voice">
+        <div class="tape" aria-hidden="true"></div>
+        <div class="voice-body">
+          <label for="entry">Say the order, a correction or a command</label>
+          <textarea id="entry" placeholder="Hold your Flow key and say the order. Or type it."></textarea>
+          <div class="entry-status" id="status" aria-live="polite">Reads automatically a moment after you stop speaking. Enter reads it now.</div>
+          <div class="chips">
+            <button class="chip" data-say="order">Try: Rohan shirt order</button>
+            <button class="chip" data-say="fix">Try: collar is 15</button>
+            <button class="chip" data-say="ready">Try: ready Rohan</button>
+            <button class="chip" data-say="due">Try: what's due this week</button>
+            <button class="chip" data-say="cm">Try: kurta chest 140</button>
+          </div>
+        </div>
+      </div>
+      <div id="out"></div>
+    </div>
+
+    <aside class="panel due" aria-labelledby="dueTitle">
+      <div class="due-head">
+        <h2 id="dueTitle">Due list</h2>
+        <span class="filter-note" id="filterNote"></span>
+      </div>
+      <div id="groups"></div>
+    </aside>
+  </section>
+
+  <!-- BOARD -->
+  <section id="view-board" hidden>
+    <div class="board-tools">
+      <input class="search" id="boardSearch" type="search" placeholder="Search name or phone" aria-label="Search orders">
+      <span class="hint">Click a card to move it to the next step.</span>
+    </div>
+    <div class="board-wrap"><div class="board" id="board"></div></div>
+  </section>
+
+  <!-- CUSTOMER -->
+  <section id="view-customer" hidden>
+    <div class="cust">
+      <div class="panel">
+        <div class="card-head">
+          <div>
+            <h2>Rohan Mehta</h2>
+            <div class="hint num">98765 43210 · customer since Feb 2026</div>
+          </div>
+          <span class="badge b-warn">Check for changes</span>
+        </div>
+        <div>
+          <div class="section-label">Shirt · latest measurements (inches)</div>
+          <div style="overflow-x:auto">
+            <table class="compare">
+              <thead><tr><th>Part</th><th>Now</th><th>Before</th></tr></thead>
+              <tbody>
+                <tr><td>Chest</td><td class="n">38</td><td>37 <span class="delta">+1</span></td></tr>
+                <tr><td>Waist</td><td class="n">32</td><td>not taken</td></tr>
+                <tr><td>Shoulder</td><td class="n">17</td><td>not taken</td></tr>
+                <tr><td>Sleeve</td><td class="n">24</td><td>not taken</td></tr>
+                <tr><td>Length</td><td class="n">29</td><td>not taken</td></tr>
+                <tr><td>Collar</td><td class="n">15½</td><td>not taken</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="hint" id="lastMeasured"></p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="newForRohan">New order with these measurements</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="section-label">Order history</div>
+        <div class="history" id="history"></div>
+        <div class="section-label" style="margin-top:8px">Job slip preview</div>
+        <div class="slip num" id="slip"></div>
+        <div class="section-label">Cloth tag preview</div>
+        <div class="tag" id="clothTag"></div>
+        <p class="hint">The real app prints these from the browser.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  var TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+  function addDays(n) { var d = new Date(TODAY); d.setDate(d.getDate() + n); return d; }
+  function fmt(d) { return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }); }
+  function fmtLong(d) { return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function daysFrom(d) { return Math.round((d - TODAY) / 86400000); }
+  function rs(n) { return 'Rs ' + n.toLocaleString('en-IN'); }
+  function nextFriday() { var d = new Date(TODAY); do { d.setDate(d.getDate() + 1); } while (d.getDay() !== 5); return d; }
+
+  document.getElementById('today').textContent = TODAY.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  var orders = [
+    { id: 1, name: 'Rohan Mehta', phone: '9876543210', items: '2 shirts', due: addDays(6), status: 'stitching', total: 1800, adv: 500 },
+    { id: 2, name: 'Meera Shah', phone: '9123456780', items: '3 blouses', due: addDays(1), status: 'ready', total: 1500, adv: 1500 },
+    { id: 3, name: 'Aman Verma', phone: '', items: '1 trouser', due: addDays(-2), status: 'stitching', total: 900, adv: 0 },
+    { id: 4, name: 'Kavita Desai', phone: '9988776655', items: '2 kurtas', due: addDays(3), status: 'cutting', total: null, adv: 0 },
+    { id: 5, name: 'Rajesh Patel', phone: '', items: '1 suit', due: addDays(9), status: 'new', total: 7500, adv: 2000 },
+    { id: 6, name: 'Rohan Mehta', phone: '9876543210', items: '1 shirt', due: addDays(-240), status: 'delivered', total: 700, adv: 700 }
+  ];
+  var STATUSES = ['new', 'cutting', 'stitching', 'ready', 'delivered'];
+  var LABEL = { new: 'New', cutting: 'Cutting', stitching: 'Stitching', ready: 'Ready', delivered: 'Delivered' };
+  var weekOnly = false;
+
+  function stChip(s) { return '<span class="st st-' + s + '">' + LABEL[s] + '</span>'; }
+  function balText(o) {
+    if (o.total == null) return 'Total not set';
+    var b = o.total - o.adv; return b > 0 ? 'Balance ' + rs(b) : 'Paid';
+  }
+
+  function renderDue() {
+    var open = orders.filter(function (o) { return o.status !== 'delivered'; });
+    var groups = [
+      { key: 'overdue', title: 'Overdue', test: function (n) { return n < 0; } },
+      { key: 'today', title: 'Today', test: function (n) { return n === 0; } },
+      { key: 'tomorrow', title: 'Tomorrow', test: function (n) { return n === 1; } },
+      { key: 'week', title: 'This week', test: function (n) { return n > 1 && n <= 7; } },
+      { key: 'later', title: 'Later', test: function (n) { return n > 7; } }
+    ];
+    var html = '';
+    groups.forEach(function (g) {
+      var list = open.filter(function (o) { return g.test(daysFrom(o.due)); }).sort(function (a, b) { return a.due - b.due; });
+      var dim = weekOnly && (g.key === 'later' || g.key === 'overdue') ? ' dim' : '';
+      html += '<div class="group ' + g.key + dim + '"><h3>' + g.title + ' <span class="count num">' + list.length + '</span></h3><div class="rows">';
+      if (!list.length) html += '<div class="empty-group">Nothing due.</div>';
+      list.forEach(function (o) {
+        var n = daysFrom(o.due);
+        var when = n < 0 ? (-n) + ' days late' : fmt(o.due);
+        html += '<div class="row"><div><div class="who">' + o.name + '</div><div class="what num">' + o.items + ' · ' + when + '</div></div>' +
+          '<div class="right">' + stChip(o.status) + '<span class="bal num">' + balText(o) + '</span></div></div>';
+      });
+      html += '</div></div>';
+    });
+    document.getElementById('groups').innerHTML = html;
+    document.getElementById('filterNote').textContent = weekOnly ? 'Showing: due this week' : '';
+  }
+
+  function renderBoard() {
+    var q = document.getElementById('boardSearch').value.trim().toLowerCase().replace(/\s/g, '');
+    var html = '';
+    STATUSES.forEach(function (s) {
+      var list = orders.filter(function (o) {
+        return o.status === s && (!q || o.name.toLowerCase().replace(/\s/g, '').indexOf(q) > -1 || o.phone.indexOf(q) > -1);
+      });
+      html += '<div class="col"><h3>' + LABEL[s] + ' <span class="num">' + list.length + '</span></h3>';
+      list.forEach(function (o) {
+        var late = daysFrom(o.due) < 0 && s !== 'delivered';
+        html += '<button class="ocard' + (late ? ' late' : '') + '" data-id="' + o.id + '" style="text-align:left">' +
+          '<span class="who">' + o.name + '</span><span class="meta num">' + o.items + ' · ' + (s === 'delivered' ? fmtLong(o.due) : fmt(o.due)) + '</span>' +
+          '<span class="meta num">' + balText(o) + '</span></button>';
+      });
+      html += '</div>';
+    });
+    document.getElementById('board').innerHTML = html;
+  }
+  document.getElementById('board').addEventListener('click', function (e) {
+    var c = e.target.closest('.ocard'); if (!c) return;
+    var o = orders.find(function (x) { return x.id === +c.dataset.id; });
+    var i = STATUSES.indexOf(o.status); if (i < STATUSES.length - 1) { o.status = STATUSES[i + 1]; toast(o.name + ' moved to ' + LABEL[o.status] + '. Undo with "undo".'); }
+    renderBoard(); renderDue();
+  });
+  document.getElementById('boardSearch').addEventListener('input', renderBoard);
+
+  function renderCustomer() {
+    var old = orders[5];
+    document.getElementById('lastMeasured').textContent = 'Last measured ' + fmtLong(addDays(-4)) + '. Before that: ' + fmtLong(old.due) + '.';
+    var mine = orders.filter(function (o) { return o.name === 'Rohan Mehta'; }).sort(function (a, b) { return b.due - a.due; });
+    document.getElementById('history').innerHTML = mine.map(function (o) {
+      return '<div class="row"><div><div class="who num">' + o.items + '</div><div class="what num">Due ' + fmtLong(o.due) + '</div></div><div class="right">' + stChip(o.status) + '<span class="bal num">' + balText(o) + '</span></div></div>';
+    }).join('');
+    var cur = mine[0];
+    document.getElementById('slip').innerHTML =
+      '<span class="k">Shop</span><span>Sharma Tailors</span><span class="k">Customer</span><span>Rohan Mehta · 98765 43210</span>' +
+      '<span class="k">Items</span><span>' + cur.items + ', slim fit</span><span class="k">Delivery</span><span>' + fmtLong(cur.due) + '</span>' +
+      '<span class="k">Advance</span><span>' + rs(cur.adv) + '</span><span class="k">Balance</span><span>' + (cur.total != null ? rs(cur.total - cur.adv) : 'not set') + '</span>';
+    document.getElementById('clothTag').innerHTML = 'ROHAN MEHTA<small class="num">2 shirts · due ' + fmt(cur.due) + '</small>';
+  }
+  document.getElementById('newForRohan').addEventListener('click', function () {
+    show('home'); var e = document.getElementById('entry');
+    e.value = 'Rohan Mehta, shirt, chest 38, waist 32, shoulder 17, sleeve 24, length 29, collar 15 and a half, slim fit, '; e.focus();
+    status('Filled from Rohan\'s last measurements. Add the quantity and delivery date.');
+  });
+
+  /* Views */
+  function show(v) {
+    ['home', 'board', 'customer'].forEach(function (k) {
+      document.getElementById('view-' + k).hidden = k !== v;
+      document.getElementById('tab-' + k).setAttribute('aria-selected', k === v ? 'true' : 'false');
+    });
+    if (v === 'board') renderBoard();
+    if (v === 'customer') renderCustomer();
+  }
+  document.querySelectorAll('nav button').forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.view); }); });
+
+  /* Entry box */
+  var SAY = {
+    order: 'Rohan Mehta, 98765 43210, shirt, chest 38, waist 32, shoulder 17, sleeve 24, length 29, collar 15 and a half, slim fit, two shirts, delivery next Friday, advance 500.',
+    fix: 'collar is 15, not 15 and a half',
+    ready: 'ready Rohan',
+    due: "what's due this week",
+    cm: 'kurta chest 140'
+  };
+  var entry = document.getElementById('entry');
+  var out = document.getElementById('out');
+  var card = null, timer = null;
+
+  function status(t) { document.getElementById('status').textContent = t; }
+  function toast(t) {
+    var el = document.getElementById('toast'); el.textContent = t; el.hidden = false;
+    clearTimeout(toast._t); toast._t = setTimeout(function () { el.hidden = true; }, 3200);
+  }
+
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () { entry.value = SAY[c.dataset.say]; entry.focus(); queue(); });
+  });
+  entry.addEventListener('input', queue);
+  entry.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); clearTimeout(timer); read(); }
+  });
+  function queue() {
+    clearTimeout(timer);
+    if (!entry.value.trim()) { status('Reads automatically a moment after you stop speaking. Enter reads it now.'); return; }
+    status('Listening… reading in a moment.');
+    timer = setTimeout(read, 1200);
+  }
+
+  function read() {
+    var t = entry.value.trim().toLowerCase();
+    if (!t) return;
+    weekOnly = false;
+    if (/^ready\b.*rohan|rohan.*\bis ready/.test(t)) return doReady();
+    if (/\bdue\b/.test(t)) { weekOnly = true; renderDue(); out.innerHTML = ''; status('Command: showing what is due this week. No order created.'); entry.value = ''; return; }
+    if (/collar\s+(is|to)?\s*15\b(?!\s*(and|\.))/.test(t) && card && card.kind === 'rohan') return doFix();
+    if (/\b140\b/.test(t)) return doCm();
+    if (/rohan/.test(t) && /shirt/.test(t)) return doOrder();
+    renderDue();
+    out.innerHTML = '<div class="panel card" style="border-color:var(--line)"><h2 style="font-size:1.2rem">I couldn\'t find an order or a command in that.</h2>' +
+      '<p class="hint" style="margin:0">Try a customer name with a garment and measurements, like "Meera blouse bust 34, delivery tomorrow". Or a command like "ready Rohan". Nothing was saved.</p></div>';
+    status('');
+  }
+
+  function F(k, v, opts) {
+    opts = opts || {};
+    var cls = 'field' + (opts.cls ? ' ' + opts.cls : '');
+    return '<div class="' + cls + '" id="f-' + k.toLowerCase().replace(/\W/g, '') + '"><span class="k">' + k + '</span><span class="v">' + v + '</span>' + (opts.sub ? '<span class="sub">' + opts.sub + '</span>' : '') + '</div>';
+  }
+
+  function doOrder() {
+    var due = nextFriday();
+    card = { kind: 'rohan', collar: '15½', due: due };
+    renderRohanCard();
+    entry.value = '';
+    status('Read as a new order. Check the card, then save. You can say corrections here.');
+  }
+  function renderRohanCard(changedCollar) {
+    var due = card.due;
+    out.innerHTML =
+      '<div class="panel card" aria-label="Confirm order">' +
+        '<div class="card-head"><h2>Check this order</h2><span class="badge b-info">Existing customer</span></div>' +
+        '<div><div class="section-label">Customer</div><div class="fields">' +
+          F('Name', 'Rohan Mehta') + F('Phone', '98765 43210') + '</div></div>' +
+        '<div><div class="section-label">Shirt × 2 · slim fit · inches</div><div class="fields">' +
+          F('Chest', '38', { sub: '<span class="was">was 37 in Feb</span>' }) + F('Waist', '32') + F('Shoulder', '17') + F('Sleeve', '24') + F('Length', '29') +
+          F('Collar', card.collar, { cls: changedCollar ? 'changed' : '', sub: changedCollar ? 'changed from 15½' : '' }) +
+          F('Armhole', 'not said', { cls: 'empty' }) + F('Cuff', 'not said', { cls: 'empty' }) +
+        '</div></div>' +
+        '<div><div class="section-label">Delivery and money</div><div class="fields">' +
+          F('Delivery', fmt(due), { sub: 'you said "next Friday" · in ' + daysFrom(due) + ' days' }) +
+          F('Advance', 'Rs 500') +
+          F('Total', '+ Add total', { cls: 'missing', sub: 'needed for the balance' }) +
+        '</div></div>' +
+        (changedCollar ? '<div class="log">Changed collar from 15½ to 15.</div>' : '') +
+        '<div class="said">What you said: <b>"' + SAY.order + '"</b></div>' +
+        '<div class="actions"><button class="btn btn-primary" id="save">Save order</button><button class="btn btn-ghost" id="saveMore">Save and add another</button><button class="btn btn-quiet" id="discard">Discard</button></div>' +
+      '</div>';
+    bindCard();
+  }
+  function doFix() {
+    card.collar = '15';
+    renderRohanCard(true);
+    entry.value = '';
+    status('Correction applied to the open card.');
+  }
+  function doCm() {
+    card = { kind: 'cm' };
+    out.innerHTML =
+      '<div class="panel card" aria-label="Confirm order">' +
+        '<div class="card-head"><h2>Check this order</h2><span class="badge b-warn">2 things missing</span></div>' +
+        '<div><div class="section-label">Customer</div><div class="fields">' +
+          F('Name', '+ Add name', { cls: 'missing', sub: 'say "for Priya" or type it' }) + F('Phone', 'not said', { cls: 'empty' }) + '</div></div>' +
+        '<div><div class="section-label">Kurta × 1 · inches</div><div class="fields">' +
+          F('Chest', '140', { cls: 'flag', sub: 'Looks like centimetres (about 55 in). Please confirm.' }) +
+          F('Waist', 'not said', { cls: 'empty' }) + F('Shoulder', 'not said', { cls: 'empty' }) + F('Length', 'not said', { cls: 'empty' }) +
+        '</div></div>' +
+        '<div><div class="section-label">Delivery and money</div><div class="fields">' +
+          F('Delivery', '+ Add date', { cls: 'missing', sub: 'say "delivery Saturday"' }) + F('Advance', 'Rs 0') +
+        '</div></div>' +
+        '<div class="said">What you said: <b>"' + SAY.cm + '"</b></div>' +
+        '<div class="actions"><button class="btn btn-primary" id="save">Save order</button><button class="btn btn-ghost" id="saveMore">Save and add another</button><button class="btn btn-quiet" id="discard">Discard</button></div>' +
+      '</div>';
+    bindCard();
+    entry.value = '';
+    status('Read as a new order, with a warning and two missing fields.');
+  }
+  function bindCard() {
+    function save(again) {
+      if (card.kind === 'cm') { toast('Add the name and delivery date first.'); return; }
+      orders.push({ id: Date.now(), name: 'Rohan Mehta', phone: '9876543210', items: '2 shirts', due: card.due, status: 'new', total: null, adv: 500 });
+      toast('Saved. Rohan Mehta · 2 shirts · due ' + fmt(card.due) + '.');
+      card = null; out.innerHTML = ''; renderDue(); entry.focus();
+      status(again ? 'Ready for the next order.' : '');
+    }
+    document.getElementById('save').onclick = function () { save(false); };
+    document.getElementById('saveMore').onclick = function () { save(true); };
+    document.getElementById('discard').onclick = function () { card = null; out.innerHTML = ''; status('Discarded. Nothing was saved.'); entry.focus(); };
+  }
+
+  function doReady() {
+    var o = orders.find(function (x) { return x.name === 'Rohan Mehta' && x.status !== 'delivered' && x.status !== 'ready'; })
+         || orders.find(function (x) { return x.name === 'Rohan Mehta' && x.status === 'ready'; });
+    o.status = 'ready'; renderDue();
+    var text = 'Hello Rohan, your ' + o.items + ' are ready for pickup at Sharma Tailors.' + (o.total != null ? ' Balance to pay: ' + rs(o.total - o.adv) + '.' : '') + ' Thank you.';
+    var wa = 'https://wa.me/91' + o.phone + '?text=' + encodeURIComponent(text);
+    out.innerHTML =
+      '<div class="panel msg">' +
+        '<h2>Rohan Mehta\'s order is Ready</h2>' +
+        '<div class="bubble" id="msgText">' + text + '</div>' +
+        '<div class="actions"><a class="btn btn-primary" href="' + wa + '" target="_blank" rel="noopener">Open in WhatsApp</a><button class="btn btn-ghost" id="copyMsg">Copy message</button></div>' +
+        '<p class="hint" style="margin:0">WhatsApp opens with the message filled in. You press send.</p>' +
+      '</div>';
+    document.getElementById('copyMsg').onclick = function () {
+      var done = function () { toast('Message copied.'); };
+      try {
+        navigator.clipboard.writeText(text).then(done, selectMsg);
+      } catch (e) { selectMsg(); }
+    };
+    entry.value = '';
+    status('Command: marked Rohan\'s order Ready and drafted the pickup message.');
+  }
+  function selectMsg() {
+    var r = document.createRange(); r.selectNodeContents(document.getElementById('msgText'));
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    toast('Press Ctrl+C to copy the selected message.');
+  }
+
+  renderDue();
+  doOrder();
+  entry.value = '';
+  status('Sample: the card below came from the Rohan sentence. Try a correction or another sample.');
+})();
+</script>
