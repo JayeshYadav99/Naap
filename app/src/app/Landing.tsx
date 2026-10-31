@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { LangSwitch, useLang, type Lang } from '@/i18n'
 import s from './landing.module.css'
+import { CounterScene, CustomerAvatar, HelperAvatar, NaapAvatar, TailorAvatar } from './Illustrations'
 
 interface Copy {
   skip: string; tagline: string; signIn: string; kicker: string; title1: string; title2: string; lede: string
@@ -13,6 +14,7 @@ interface Copy {
   a11yTitle: string; a11yLede: string; checks: string[]
   ctaTitle: string; ctaLede: string; create: string; footer1: string; footer2: string
   pills: string[]; askTitle: string; askLede: string; you: string; naap: string; convo: [string, string][]
+  scene: [string, string, string]; people: [string, string, string]; peopleNote: string; listening: string; micPh: string
 }
 
 const COPY: Record<Lang, Copy> = {
@@ -62,6 +64,9 @@ const COPY: Record<Lang, Copy> = {
     askTitle: 'Talk to it like a helper',
     askLede: 'The same box takes orders, fixes and questions. Naap answers on screen and out loud, so your hands stay on the tape.',
     you: 'You', naap: 'Naap',
+    scene: ['Chest kitna?', '38 inch', 'A tailor measures a customer while Naap, on the phone, writes the order'],
+    people: ['Tailor', 'Customer', 'Helper'], peopleNote: 'Everyone at the counter talks. Naap listens and keeps only the order.',
+    listening: 'listening', micPh: 'Say an order, or ask anything…',
     convo: [
       ['collar is 15, not 15 and a half', 'Collar changed from 15½ to 15.'],
       ['who still owes money?', '6 customers owe money. Total ₹16,700. Highest is Imran Shaikh, ₹7,000.'],
@@ -115,6 +120,9 @@ const COPY: Record<Lang, Copy> = {
     askTitle: 'कारीगर की तरह बात कीजिए',
     askLede: 'एक ही बॉक्स में ऑर्डर, सुधार और सवाल। नाप स्क्रीन पर भी जवाब देता है और बोलकर भी, ताकि आपके हाथ फीते पर रहें।',
     you: 'आप', naap: 'नाप',
+    scene: ['सीना कितना?', '38 इंच', 'दर्ज़ी ग्राहक का नाप लेता है और फ़ोन पर नाप ऑर्डर लिखता है'],
+    people: ['दर्ज़ी', 'ग्राहक', 'हेल्पर'], peopleNote: 'काउंटर पर सब बात करते हैं। नाप सुनता है और सिर्फ़ ऑर्डर रखता है।',
+    listening: 'सुन रहा है', micPh: 'ऑर्डर बोलिए, या कुछ भी पूछिए…',
     convo: [
       ['गला 15 कर दो', 'गला 15½ से 15 कर दिया।'],
       ['किसका पैसा बाकी है?', '6 ग्राहकों का पैसा बाकी है। कुल ₹16,700। सबसे ज़्यादा Imran Shaikh, ₹7,000।'],
@@ -204,19 +212,53 @@ export default function Landing() {
         </section>
 
         <section className={`${s.section} ${s.alt} gutter`} aria-labelledby="ask-title">
-          <div className={`wrap ${s.split}`}>
-            <div>
+          <div className={`wrap ${s.askGrid}`}>
+            <div className={s.askIntro}>
               <h2 id="ask-title" className={s.h2}>{c.askTitle}</h2>
               <p className={s.lede}>{c.askLede}</p>
+              <figure className={s.sceneWrap}>
+                <CounterScene bubble1={c.scene[0]} bubble2={c.scene[1]} cardTitle={c.scene[2]} />
+              </figure>
+              <ul className={s.people}>
+                <li><TailorAvatar size={48} /><span>{c.people[0]}</span></li>
+                <li><CustomerAvatar size={48} /><span>{c.people[1]}</span></li>
+                <li><HelperAvatar size={48} /><span>{c.people[2]}</span></li>
+                <li className={s.peopleArrow} aria-hidden="true">→</li>
+                <li><NaapAvatar size={48} /><span>{c.naap}</span></li>
+              </ul>
+              <p className={s.small}>{c.peopleNote}</p>
             </div>
-            <ol className={s.convo}>
-              {c.convo.map(([q, a]) => (
-                <li key={q} className={s.turn}>
-                  <p className={s.bubbleYou}><span className={s.who}>{c.you}</span>{q}</p>
-                  <p className={s.bubbleNaap}><span className={s.who}>🔊 {c.naap}</span>{a}</p>
-                </li>
-              ))}
-            </ol>
+
+            <div className={s.chat} aria-label={c.askTitle}>
+              <div className={s.chatHead}>
+                <NaapAvatar size={36} />
+                <div>
+                  <strong>{c.naap}</strong>
+                  <span className={s.status}><span className={s.liveDot} aria-hidden="true" />{c.listening}</span>
+                </div>
+                <span className={s.wave} aria-hidden="true"><i /><i /><i /><i /><i /></span>
+              </div>
+              <ol className={s.convo}>
+                {c.convo.map(([q, a]) => (
+                  <li key={q} className={s.turn}>
+                    <div className={s.rowYou}>
+                      <p className={s.bubbleYou}><span className={s.who}>{c.you}</span>{q}</p>
+                      <TailorAvatar size={36} />
+                    </div>
+                    <div className={s.rowNaap}>
+                      <NaapAvatar size={36} />
+                      <p className={s.bubbleNaap}><span className={s.who}>🔊 {c.naap}</span>{a}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <div className={s.chatInput} aria-hidden="true">
+                <span>{c.micPh}</span>
+                <span className={s.micDot}>
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
+                </span>
+              </div>
+            </div>
           </div>
         </section>
 

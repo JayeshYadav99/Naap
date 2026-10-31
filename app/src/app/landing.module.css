@@ -84,3 +84,39 @@
   .stickyCta :global(.btn) { width: 100%; }
   .footer { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* ---------- Talk to Naap: illustration + chat window ---------- */
+.askGrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+@media (max-width: 899px) { .askGrid { grid-template-columns: 1fr; } }
+.askIntro { display: flex; flex-direction: column; gap: 16px; }
+@media (min-width: 900px) { .askIntro { position: sticky; top: 92px; } }
+.sceneWrap { margin: 0; }
+.sceneWrap svg { width: 100%; height: auto; display: block; }
+.sceneWrap :global(.waves) path { animation: wave 1.6s ease-in-out infinite; }
+.sceneWrap :global(.waves) path:nth-child(2) { animation-delay: .2s; }
+.sceneWrap :global(.waves) path:nth-child(3) { animation-delay: .4s; }
+@keyframes wave { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+.people { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.people li { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: .85rem; font-weight: 700; color: var(--muted); }
+.people .peopleArrow { font-size: 1.6rem; color: var(--ok); font-weight: 800; }
+
+.chat { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+.chatHead { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--tape) 14%, var(--surface)); }
+.chatHead strong { display: block; font-family: var(--f-display); font-size: 1.05rem; }
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; color: var(--ok); font-weight: 700; }
+.liveDot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: wave 1.2s infinite; }
+.wave { margin-left: auto; display: inline-flex; gap: 3px; align-items: center; height: 24px; }
+.wave i { display: block; width: 4px; border-radius: 2px; background: var(--ok); animation: bars 1s ease-in-out infinite; }
+.wave i:nth-child(1) { height: 8px; } .wave i:nth-child(2) { height: 16px; animation-delay: .1s; } .wave i:nth-child(3) { height: 22px; animation-delay: .2s; }
+.wave i:nth-child(4) { height: 14px; animation-delay: .3s; } .wave i:nth-child(5) { height: 9px; animation-delay: .4s; }
+@keyframes bars { 0%, 100% { transform: scaleY(.5); } 50% { transform: scaleY(1); } }
+
+.chat .convo { padding: 18px 16px; gap: 18px; background: var(--bg); }
+.rowYou, .rowNaap { display: flex; align-items: flex-end; gap: 8px; }
+.rowYou { justify-content: flex-end; }
+.rowYou svg, .rowNaap svg { flex: none; }
+.chat .bubbleYou, .chat .bubbleNaap { max-width: 78%; align-self: auto; }
+
+.chatInput { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 16px 16px; padding: 10px 10px 10px 16px; border: 2px solid var(--line-strong); border-radius: 999px; color: var(--muted); font-size: .95rem; }
+.micDot { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--denim); color: var(--on-denim); flex: none; }
