@@ -2,13 +2,19 @@
 
 **The tailor's voice measurement book.** *Naap* (नाप) is Hindi for "measurement".
 
-Tailors measure with a tape in one hand and write in a paper register that gets messy, lost or misread ("32 or 37?"). With Naap the tailor just **says the order while measuring**, in English, Hindi or Hinglish:
+**▶ Live app: [naap-rouge.vercel.app](https://naap-rouge.vercel.app)** · tap **Try the demo shop**, no sign-up needed
 
-> "Rohan Mehta, 98765 43210, shirt, chest 38, waist 32, collar 15 and a half, slim fit, two shirts, delivery next Friday, advance 500."
+Small tailoring shops in India still run on a paper register. The tailor measures with a tape in one hand and writes with the other, so numbers get misread ("32 or 37?"), slips get lost and deliveries get missed. With Naap the tailor just **talks**, in Hindi, Hinglish or English, and Naap keeps the book.
 
-Naap turns that into a clean customer card to confirm, then tracks delivery dates and balances, remembers every customer's measurements, and drafts the "your order is ready" WhatsApp message.
+A real fitting is a conversation, and Naap reads the whole thing:
 
-Built by voice with [Wispr Flow](https://wisprflow.ai) for **No Hands: The Wispr Challenge**.
+> Aaiye bhaiya, kya silwana hai? · Do shirt banani hain. · Naam bataiye? · Rohan Mehta. · Chest kitna aa raha hai… 38. · Kamar 32. Kandha 17. · Collar saadhe pandrah. · Nahi bhaiya, collar 15 hi rakhna. · Shukravar tak de dena. 500 advance de deta hoon.
+
+→ **Rohan Mehta · 2 shirts · chest 38 (was 37) · waist 32 · shoulder 17 · collar 15 · delivery Friday 6 Nov · advance ₹500**, shown on a card for the tailor to confirm.
+
+Naap then tracks delivery dates and balances, remembers every customer's measurements, drafts the "your order is ready" WhatsApp message, and answers questions out loud ("kiska paisa baaki hai?").
+
+Built by voice with [Wispr Flow](https://wisprflow.ai) for **No Hands: The Wispr Challenge** (Builders track).
 
 ---
 
@@ -24,9 +30,27 @@ Tailor speaks ──► Wispr Flow (or the built-in mic, or typing) ──► te
 3. **Fix by voice.** "collar is 15, not 15 and a half", "make delivery Saturday", "advance 1000".
 4. **Save.** The order gets a number (#47), joins the due list, and the customer's measurements are kept for next time.
 
+## Try it in one minute
+
+Open the [demo shop](https://naap-rouge.vercel.app/app?demo=1), switch to **हि** if you like, and say (with Wispr Flow) or type into the big box:
+
+| Say | Naap does |
+|---|---|
+| `Rohan Mehta, shirt, chest 38, collar 15 and a half, two shirts, delivery Friday, advance 500` | Opens an order card to check and save |
+| `collar is 15, not 15 and a half` | Fixes the open card |
+| `Meera ka order taiyar hai` | Marks it ready, drafts the WhatsApp message |
+| `kiska paisa baaki hai` / `who still owes money` | Lists balances, total to collect, reminder buttons, and says it aloud |
+| `is mahine kitne order aaye` | This month's orders and money received |
+| `kapda nahi aaya` / `trial kab hai` | Whose fabric hasn't come / trials this week |
+| `Rohan ka naap dikhao` | Opens Rohan's measurements with what changed |
+| `kurta seena 140` | Warns: looks like centimetres |
+
+Or tap the sample buttons under the box.
+
 ## Features
 
 **Orders**
+- **Whole conversations** between tailor, customer and helper: question-and-answer ("Waist bolo. 34 inch."), changes of mind ("41… nahi, 40.5"), speaker labels, and values never given left blank
 - Free-form spoken orders: name, phone, 13 garment types, quantities, fit, measurements (fractions, number words, cm), delivery date ("next Friday", "parso", "7 Nov", "15/11"), total, price each, advance, notes
 - Several garments in one sentence ("shirt chest 38, trouser waist 32 length 40")
 - Trial / fitting dates, fabric status (given / still to come / shop's), alteration jobs ("pant shorten 1 inch, 50 rupees, kal"), style details
@@ -38,6 +62,8 @@ Tailor speaks ──► Wispr Flow (or the built-in mic, or typing) ──► te
 - Orders board: New → Cutting → Stitching → Ready → Delivered
 - Commands: “ready Rohan”, “ready 47”, “ready Rohan kurta”, “delivered Meera”, “balance Rajesh”, “paid 500 Meera”, “today’s summary”, “what’s due this week”, “Rohan’s measurements”, “undo”
 - Shop questions: “who still owes money” / “kiska paisa baaki hai”, “what’s ready”, “any trials this week”, “whose fabric hasn’t come”, “how many orders this month”, “how much did I earn this week”, “Rohan’s phone number”, “Rohan’s last order”
+- **Spoken answers**: every answer to a question or command is read aloud in English or Hindi, using the most natural voice on the device (toggle in the header)
+- Names matched across spellings and scripts: “Mira” or “मीरा” finds Meera, “रोहन” finds Rohan
 - Asks instead of guessing: two customers named Rohan, or two open orders → a choice list
 
 **Customers and money**
@@ -70,7 +96,7 @@ Tailor speaks ──► Wispr Flow (or the built-in mic, or typing) ──► te
 | Database | Neon Postgres via `pg`, through Next.js API routes (`app/src/server/`, `app/src/app/api/`) |
 | Auth | scrypt password hashes, signed HTTP-only session cookie, lockout after 5 wrong tries |
 | Speech | Wispr Flow (primary); Web Speech API mic button as a fallback (Chrome, Edge, Android Chrome) |
-| Tests | Vitest: 79 tests, including the spec’s 10 test sentences and 7 real shop conversations |
+| Tests | Vitest: 98 tests, including the spec’s 10 test sentences, 7 real shop conversations, the Hindi demo conversation and name matching |
 
 ## Run it locally
 
@@ -79,7 +105,7 @@ cd app
 npm install
 cp .env.example .env.local   # then fill in the two values
 npm run dev                   # http://localhost:3000  (landing)  ·  /app  (shop counter)
-npm test                      # parser tests
+npm test                      # 98 parser tests
 ```
 
 `.env.local` needs:
@@ -118,6 +144,8 @@ tailor-measurement-book-spec.md   original build spec
 ## Honest limits
 
 - Speech-to-text comes from Wispr Flow or the browser; Naap reads the text. The browser mic sends audio to the browser maker (Google in Chrome) for recognition; Wispr Flow and typing do not go through the browser.
+- Naap understands English, Hindi and Hinglish. Other Indian languages (for example Gujarati) are not supported yet; adding one is a word list plus a dictionary file.
+- No "forgot password" yet: resetting a password needs SMS OTP (a paid SMS provider).
 - Rule-based parsing can miss unusual phrasing. That is why the card always shows what was understood, keeps the original sentence, and nothing is saved until the tailor confirms.
 - WhatsApp messages are opened for the tailor to send; Naap never sends them by itself.
 - Sample customers in the demo are made up.
