@@ -120,3 +120,29 @@
 
 .chatInput { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 12px 16px 16px; padding: 10px 10px 10px 16px; border: 2px solid var(--line-strong); border-radius: 999px; color: var(--muted); font-size: .95rem; }
 .micDot { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--denim); color: var(--on-denim); flex: none; }
+
+/* ---------- Real answer cards (replaces the chat window) ---------- */
+.shots { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 599px) { .shots { grid-template-columns: 1fr; } }
+.shot { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.say { margin: 0; align-self: flex-start; background: var(--ink); color: var(--bg); border-radius: 14px 14px 14px 4px; padding: 8px 12px; font-size: .95rem; font-weight: 700; }
+.say span { display: block; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--tape); }
+.screen { background: var(--surface); border: 2px solid var(--denim); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow); flex: 1; }
+.screenTitle { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 1.05rem; }
+.change { margin: 0; background: var(--ok-bg); color: var(--ok); font-weight: 700; border-radius: 8px; padding: 4px 8px; font-size: .9rem; }
+.mini { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.mini div { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; min-width: 0; }
+.mini dt { font-size: .75rem; color: var(--muted); }
+.mini dd { margin: 0; font-size: 1.3rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.mini small { display: block; font-size: .7rem; color: var(--denim); font-weight: 700; }
+.screenNote { margin: 0; font-size: .85rem; color: var(--denim); font-weight: 700; }
+.total { margin: 0; font-weight: 700; color: var(--danger); font-size: .9rem; }
+.listRow { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: .9rem; }
+.owed { color: var(--danger); font-weight: 700; }
+.waBtn { background: var(--ok); color: var(--surface); border-radius: 8px; padding: 6px 10px; font-size: .8rem; font-weight: 700; white-space: nowrap; align-self: flex-start; }
+.waMsg { margin: 0; background: var(--ok-bg); border-radius: 12px 12px 12px 4px; padding: 10px 12px; font-size: .92rem; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tiles div { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; }
+.tiles span { font-size: .75rem; color: var(--muted); }
+.tiles strong { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.aloud { margin: 0; font-size: .8rem; color: var(--ok); font-weight: 700; margin-top: auto; }

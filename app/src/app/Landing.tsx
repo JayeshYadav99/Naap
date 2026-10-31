@@ -15,6 +15,11 @@ interface Copy {
   ctaTitle: string; ctaLede: string; create: string; footer1: string; footer2: string
   pills: string[]; askTitle: string; askLede: string; you: string; naap: string; convo: [string, string][]
   scene: [string, string, string]; people: [string, string, string]; peopleNote: string; listening: string; micPh: string
+  saysLabel: string; aloud: string
+  shotOrder: { say: string; title: string; fields: [string, string, string?][]; change: string; due: string }
+  shotOwed: { say: string; title: string; rows: [string, string][]; total: string; remind: string }
+  shotReady: { say: string; msg: string; button: string }
+  shotStats: { say: string; title: string; tiles: [string, string][] }
 }
 
 const COPY: Record<Lang, Copy> = {
@@ -67,6 +72,11 @@ const COPY: Record<Lang, Copy> = {
     scene: ['Chest kitna?', '38 inch', 'A tailor measures a customer while Naap, on the phone, writes the order'],
     people: ['Tailor', 'Customer', 'Helper'], peopleNote: 'Everyone at the counter talks. Naap listens and keeps only the order.',
     listening: 'listening', micPh: 'Say an order, or ask anything…',
+    saysLabel: 'You say', aloud: 'Naap also says the answer aloud',
+    shotOrder: { say: '“…collar saadhe pandrah. Nahi bhaiya, collar 15 hi rakhna…”', title: 'Check this order', fields: [['Chest', '38', 'was 37'], ['Waist', '32'], ['Collar', '15']], change: '✓ Collar 15½ → 15', due: 'Delivery Friday, 6 November' },
+    shotOwed: { say: '“Who still owes money?”', title: 'Who still owes money (6)', rows: [['#49 Imran Shaikh', '₹7,000'], ['#50 Rajesh Patel', '₹5,500']], total: 'Total to collect: ₹16,700', remind: 'Send reminder' },
+    shotReady: { say: '“Meera ka order taiyar hai”', msg: 'Hello Meera, your 3 blouses (order #45) are ready for pickup at Sharma Tailors. Thank you.', button: 'Open in WhatsApp' },
+    shotStats: { say: '“How many orders this month?”', title: 'This month', tiles: [['Orders taken', '8'], ['Money received', '₹10,800']] },
     convo: [
       ['collar is 15, not 15 and a half', 'Collar changed from 15½ to 15.'],
       ['who still owes money?', '6 customers owe money. Total ₹16,700. Highest is Imran Shaikh, ₹7,000.'],
@@ -123,6 +133,11 @@ const COPY: Record<Lang, Copy> = {
     scene: ['सीना कितना?', '38 इंच', 'दर्ज़ी ग्राहक का नाप लेता है और फ़ोन पर नाप ऑर्डर लिखता है'],
     people: ['दर्ज़ी', 'ग्राहक', 'हेल्पर'], peopleNote: 'काउंटर पर सब बात करते हैं। नाप सुनता है और सिर्फ़ ऑर्डर रखता है।',
     listening: 'सुन रहा है', micPh: 'ऑर्डर बोलिए, या कुछ भी पूछिए…',
+    saysLabel: 'आप बोलते हैं', aloud: 'नाप जवाब बोलकर भी सुनाता है',
+    shotOrder: { say: '“…collar saadhe pandrah. Nahi bhaiya, collar 15 hi rakhna…”', title: 'ऑर्डर जाँचें', fields: [['सीना', '38', 'पहले 37'], ['कमर', '32'], ['गला', '15']], change: '✓ गला 15½ → 15', due: 'डिलीवरी शुक्रवार, 6 नवंबर' },
+    shotOwed: { say: '“किसका पैसा बाकी है?”', title: 'किसका पैसा बाकी है (6)', rows: [['#49 Imran Shaikh', '₹7,000'], ['#50 Rajesh Patel', '₹5,500']], total: 'कुल वसूली: ₹16,700', remind: 'याद भेजें' },
+    shotReady: { say: '“Meera का ऑर्डर तैयार है”', msg: 'नमस्ते Meera जी, आपके 3 ब्लाउज़ (ऑर्डर #45) तैयार हैं। Sharma Tailors से ले जाएँ। धन्यवाद।', button: 'WhatsApp में खोलें' },
+    shotStats: { say: '“इस महीने कितने ऑर्डर?”', title: 'इस महीने', tiles: [['लिए गए ऑर्डर', '8'], ['मिले पैसे', '₹10,800']] },
     convo: [
       ['गला 15 कर दो', 'गला 15½ से 15 कर दिया।'],
       ['किसका पैसा बाकी है?', '6 ग्राहकों का पैसा बाकी है। कुल ₹16,700। सबसे ज़्यादा Imran Shaikh, ₹7,000।'],
@@ -229,36 +244,48 @@ export default function Landing() {
               <p className={s.small}>{c.peopleNote}</p>
             </div>
 
-            <div className={s.chat} aria-label={c.askTitle}>
-              <div className={s.chatHead}>
-                <NaapAvatar size={36} />
-                <div>
-                  <strong>{c.naap}</strong>
-                  <span className={s.status}><span className={s.liveDot} aria-hidden="true" />{c.listening}</span>
+            {/* What Naap actually shows: the real answer cards, with what was said above each. */}
+            <ul className={s.shots}>
+              <li className={s.shot}>
+                <p className={s.say}><span>{c.saysLabel}</span>{c.shotOrder.say}</p>
+                <div className={s.screen}>
+                  <p className={s.screenTitle}>{c.shotOrder.title}</p>
+                  <p className={s.change}>{c.shotOrder.change}</p>
+                  <dl className={s.mini}>
+                    {c.shotOrder.fields.map(([k, v, was]) => <div key={k}><dt>{k}</dt><dd>{v}{was && <small>{was}</small>}</dd></div>)}
+                  </dl>
+                  <p className={s.screenNote}>{c.shotOrder.due}</p>
                 </div>
-                <span className={s.wave} aria-hidden="true"><i /><i /><i /><i /><i /></span>
-              </div>
-              <ol className={s.convo}>
-                {c.convo.map(([q, a]) => (
-                  <li key={q} className={s.turn}>
-                    <div className={s.rowYou}>
-                      <p className={s.bubbleYou}><span className={s.who}>{c.you}</span>{q}</p>
-                      <TailorAvatar size={36} />
-                    </div>
-                    <div className={s.rowNaap}>
-                      <NaapAvatar size={36} />
-                      <p className={s.bubbleNaap}><span className={s.who}>🔊 {c.naap}</span>{a}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-              <div className={s.chatInput} aria-hidden="true">
-                <span>{c.micPh}</span>
-                <span className={s.micDot}>
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
-                </span>
-              </div>
-            </div>
+              </li>
+              <li className={s.shot}>
+                <p className={s.say}><span>{c.saysLabel}</span>{c.shotOwed.say}</p>
+                <div className={s.screen}>
+                  <p className={s.screenTitle}>{c.shotOwed.title}</p>
+                  <p className={s.total}>{c.shotOwed.total}</p>
+                  {c.shotOwed.rows.map(([n, amt]) => (
+                    <div key={n} className={s.listRow}><span><strong>{n}</strong><br /><span className={s.owed}>{amt}</span></span><span className={s.waBtn}>{c.shotOwed.remind}</span></div>
+                  ))}
+                  <p className={s.aloud}>🔊 {c.aloud}</p>
+                </div>
+              </li>
+              <li className={s.shot}>
+                <p className={s.say}><span>{c.saysLabel}</span>{c.shotReady.say}</p>
+                <div className={s.screen}>
+                  <p className={s.waMsg}>{c.shotReady.msg}</p>
+                  <span className={s.waBtn}>{c.shotReady.button}</span>
+                </div>
+              </li>
+              <li className={s.shot}>
+                <p className={s.say}><span>{c.saysLabel}</span>{c.shotStats.say}</p>
+                <div className={s.screen}>
+                  <p className={s.screenTitle}>{c.shotStats.title}</p>
+                  <div className={s.tiles}>
+                    {c.shotStats.tiles.map(([k, v]) => <div key={k}><span>{k}</span><strong>{v}</strong></div>)}
+                  </div>
+                  <p className={s.aloud}>🔊 {c.aloud}</p>
+                </div>
+              </li>
+            </ul>
           </div>
         </section>
 
