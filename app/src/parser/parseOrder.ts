@@ -11,7 +11,7 @@ export interface ParseOptions {
 
 /** Pulls a 10-digit Indian mobile number out of the text, spaces and dashes allowed. */
 export function extractPhone(text: string): { phone?: string; rest: string } {
-  const re = /(?<![\d.])(?:\+?\s?91[\s-]*)?\d(?:[\s-]?\d){9}(?![\d.])/g
+  const re = /(?<!\d)(?<!\d\.)(?:\+?\s?91[\s-]*)?\d(?:[\s-]?\d){9}(?!\d)(?!\.\d)/g
   for (const m of text.matchAll(re)) {
     let digits = m[0].replace(/\D/g, '')
     if (digits.length === 12 && digits.startsWith('91')) digits = digits.slice(2)
@@ -212,9 +212,10 @@ export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
     let nameHit: { start: number; end: number; words: string[] } | undefined
     for (let i = 0; i < toks.length - 1 && !nameHit; i++) {
       if (used[i]) continue
-      if (toks[i].low === 'name' && toks[i + 1]) {
+      if ((toks[i].low === 'name' || toks[i].low === 'naam') && toks[i + 1]) {
+        // "name is Rohan", "naam bataiye? Rohan Mehta", "aapka naam kya hai? Rohan"
         let s = i + 1
-        if (toks[s]?.low === 'is' || toks[s]?.low === ':') s++
+        while (s < toks.length && s <= i + 5 && (toks[s].punct || /^(is|kya|hai|bataiye|batao|boliye|bolo|please|ji)$/.test(toks[s].low))) s++
         const r = capWords(s)
         if (r.words.length) nameHit = { start: i, end: r.end, words: r.words }
       } else if ((toks[i].low === 'for' || toks[i].low === 'customer') && toks[i + 1] && /^[A-Z]/.test(toks[i + 1].t)) {

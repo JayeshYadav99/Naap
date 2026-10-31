@@ -308,3 +308,10 @@ describe('Shop questions', () => {
     expect(interpret('Imran sherwani chest 40, trial Tuesday', opts).kind).toBe('order')
   })
 })
+
+describe('Phone at the end of a sentence', () => {
+  it('"Number? 98765 43210." keeps the phone', () => {
+    expect(order('Rohan shirt chest 38. Number? 98765 43210.').phone).toBe('9876543210')
+    expect(order('shirt chest 38.5 waist 32').phone).toBeUndefined()
+  })
+})
