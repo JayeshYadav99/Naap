@@ -396,3 +396,10 @@ main { padding-block: 20px; }
 @keyframes micpulse { 50% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--danger) 25%, transparent); } }
 @media (max-width: 480px) { .mic-btn { width: 64px; } }
 :lang(hi) body, [lang="hi"] { line-height: 1.6; }
+
+/* ---------- Spoken answers + clearer samples ---------- */
+.answer-area { display: flex; flex-direction: column; gap: 8px; }
+.say-again { align-self: flex-end; }
+.chip-ask { border-color: var(--ok); color: var(--ok); }
+.chip-ask:hover { background: var(--ok-bg); }
+.icon-btn[aria-pressed="false"] { color: var(--muted); }

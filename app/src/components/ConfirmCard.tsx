@@ -7,9 +7,10 @@ import { matchCustomer, previousMeasurements, validateDraft, type Issue } from '
 import { normalizeScript, numberize, tokenize } from '@/parser/numbers'
 import { daysBetween, formatDay, fromISO } from '@/parser/dates'
 import { fmtMeasure, fmtNum, formatPhone, fromUnit, rupees, toUnit } from '@/parser/format'
-import { useLang, localeOf, LANGS } from '@/i18n'
+import { useLang, localeOf } from '@/i18n'
 import { GarmentDiagram } from './GarmentDiagram'
 import { describeDraft } from '@/lib/describe'
+import { speak } from '@/lib/speak'
 
 function parseNum(s: string): number | undefined {
   const t = numberize(tokenize(normalizeScript(s.replace(',', '.'))))
@@ -102,11 +103,9 @@ export function ConfirmCard({ draft, data, today, changes, question, onChange, o
     try {
       const synth = window.speechSynthesis
       if (speaking) { synth.cancel(); setSpeaking(false); return }
-      const text = lang === 'hi' ? summary.replace(/½/g, ' साढ़े') : summary.replace(/½/g, ' and a half').replace(/¼/g, ' and a quarter').replace(/¾/g, ' and three quarters')
-      const u = new SpeechSynthesisUtterance(text)
-      u.lang = LANGS.find(l => l.code === lang)!.speech
-      u.onend = () => setSpeaking(false)
-      synth.cancel(); synth.speak(u); setSpeaking(true)
+      speak(summary, lang, true)
+      setSpeaking(true)
+      const done = setInterval(() => { if (!synth.speaking) { setSpeaking(false); clearInterval(done) } }, 400)
     } catch { setSpeaking(false) }
   }
   const balance = draft.total !== undefined ? draft.total - draft.advance : undefined

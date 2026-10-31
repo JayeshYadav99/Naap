@@ -22,12 +22,12 @@ export const en = {
   'list.and': ' and ',
 
   // today / entry
-  'entry.say': 'Say the order', 'entry.sayCorrection': 'Say a correction, or save the card below',
-  'entry.placeholder': 'Hold your Flow key and say the order. Or type it.',
+  'entry.say': 'Say an order, or ask anything', 'entry.sayCorrection': 'Say a correction, or save the card below',
+  'entry.placeholder': 'Hold your Flow key and speak, or type. e.g. “Rohan shirt chest 38, delivery Friday” or “who still owes money?”',
   'entry.placeholderCard': 'e.g. “collar is 15”, “make delivery Saturday”, “advance 1000”',
-  'entry.readNow': 'Read it now', 'entry.help': 'Reads by itself 1 second after you stop. Press Enter to read it now.',
+  'entry.readNow': 'Read it now', 'entry.help': 'One box for everything: new orders, fixes and questions. It reads by itself 1 second after you stop; Enter reads now.',
   'entry.commands': 'You can also say: “ready Rohan”, “paid 500 Meera”, “balance Aman”, “today’s summary”, “undo”.',
-  'entry.try': 'Try a sample', 'entry.tryCorrection': 'Try a spoken correction',
+  'entry.try': 'Try a sample', 'entry.tryOrder': 'New order', 'entry.tryAsk': 'Ask or tell Naap', 'entry.tryCorrection': 'Try a spoken correction',
   'status.listening': 'Listening… reading it in a moment', 'status.done': 'Done. Ready for the next one.',
   'status.checkCard': 'Check the card, then save. You can say corrections here.', 'status.oneQuestion': 'One question on the card.',
   'status.corrected': 'Correction applied.', 'status.savedNext': 'Saved. Say the next order.', 'status.discarded': 'Discarded. Nothing was saved.',
@@ -185,6 +185,16 @@ export const en = {
   'q.orders': 'Orders taken', 'q.garments': 'Garments', 'q.value': 'Order value', 'q.received': 'Money received', 'q.delivered': 'Delivered',
   'q.phoneNone': '{name} has no phone saved.', 'q.call': 'Call', 'q.sendBalance': 'Send balance reminder', 'q.sendReady': 'Send ready message',
   'q.trialOn': 'trial {date}', 'q.noOrders': '{name} has no orders yet.', 'q.open': 'Open',
+  'sp.again': 'Say it again', 'sp.on': 'Spoken answers on', 'sp.off': 'Spoken answers off',
+  'sp.owed': '{n} customers owe money. Total Rs {amount}. Highest is {name}, Rs {top}.', 'sp.owedNone': 'Nobody owes money right now.',
+  'sp.ready': '{n} ready for pickup: {names}.', 'sp.readyNone': 'Nothing is ready for pickup yet.',
+  'sp.trials': '{n} trials this week: {names}.', 'sp.trialsNone': 'No trials this week.',
+  'sp.fabric': 'Fabric still to come for {names}.', 'sp.fabricNone': 'All fabric has come in.',
+  'sp.stats': '{period}: {orders} orders, Rs {received} received.',
+  'sp.summary': 'Today: {orders} orders taken, Rs {received} received. {due} due tomorrow.',
+  'sp.phone': '{name}: {phone}.', 'sp.msgReady': 'The WhatsApp message is ready to send.',
+  'sp.balance': '{name} owes Rs {amount}.', 'sp.balanceNone': '{name} owes nothing.',
+  'sp.which': '{n} customers match. Which one?', 'sp.pick': '{name} has {n} open orders. Which one?',
 } as const
 
 export type Key = keyof typeof en

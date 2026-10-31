@@ -14,30 +14,33 @@ import { ConfirmCard } from './ConfirmCard'
 import { DueList } from './DueList'
 import { MessagePanel } from './MessagePanel'
 import { statusKey } from './ui'
+import { speak } from '@/lib/speak'
 import type { Result } from './TailorApp'
 
-type Sample = { label: string; text: string; when: 'idle' | 'card' }
+type Sample = { label: string; text: string; when: 'order' | 'ask' | 'card' }
 const SAMPLES: Record<Lang, Sample[]> = {
   en: [
-    { when: 'idle', label: 'Rohan shirt order', text: 'Rohan Mehta, 98765 43210, shirt, chest 38, waist 32, shoulder 17, sleeve 24, length 29, collar 15 and a half, slim fit, two shirts, delivery next Friday, advance 500.' },
-    { when: 'idle', label: 'ready Rohan', text: 'ready Rohan' },
-    { when: 'idle', label: 'what’s due this week', text: "what's due this week" },
-    { when: 'idle', label: 'Hinglish kurta', text: 'Pooja kurta seena chautis kamar battis lambai byalis, aasteen saadhe bees, parso, advance 500' },
-    { when: 'idle', label: 'kurta chest 140', text: 'kurta chest 140' },
-    { when: 'idle', label: 'today’s summary', text: "today's summary" },
-    { when: 'idle', label: 'who still owes money', text: 'who still owes money' },
+    { when: 'order', label: 'Rohan shirt order', text: 'Rohan Mehta, 98765 43210, shirt, chest 38, waist 32, shoulder 17, sleeve 24, length 29, collar 15 and a half, slim fit, two shirts, delivery next Friday, advance 500.' },
+    { when: 'order', label: 'Hinglish kurta', text: 'Pooja kurta seena chautis kamar battis lambai byalis, aasteen saadhe bees, parso, advance 500' },
+    { when: 'order', label: 'kurta chest 140', text: 'kurta chest 140' },
+    { when: 'ask', label: 'who still owes money?', text: 'who still owes money' },
+    { when: 'ask', label: 'what’s ready?', text: "what's ready" },
+    { when: 'ask', label: 'today’s summary', text: "today's summary" },
+    { when: 'ask', label: 'ready Rohan', text: 'ready Rohan' },
+    { when: 'ask', label: 'what’s due this week?', text: "what's due this week" },
     { when: 'card', label: 'collar is 15, not 15½', text: 'collar is 15, not 15 and a half' },
     { when: 'card', label: 'make delivery Saturday', text: 'make delivery Saturday' },
     { when: 'card', label: 'advance 1000', text: 'advance 1000' },
   ],
   hi: [
-    { when: 'idle', label: 'Rohan का शर्ट ऑर्डर', text: 'Rohan Mehta, 98765 43210, शर्ट, सीना 38, कमर 32, कंधा 17, बाजू 24, लंबाई 29, गला साढ़े 15, स्लिम फिटिंग, दो शर्ट, शुक्रवार डिलीवरी, एडवांस 500' },
-    { when: 'idle', label: 'Rohan का ऑर्डर तैयार है', text: 'Rohan का ऑर्डर तैयार है' },
-    { when: 'idle', label: 'इस हफ़्ते क्या ड्यू है', text: 'इस हफ़्ते क्या ड्यू है' },
-    { when: 'idle', label: 'Pooja कुर्ता', text: 'Pooja कुर्ता सीना चौंतीस कमर बत्तीस लंबाई बयालीस, आस्तीन साढ़े बीस, परसों, एडवांस 500' },
-    { when: 'idle', label: 'कुर्ता सीना 140', text: 'कुर्ता सीना 140' },
-    { when: 'idle', label: 'आज का हिसाब', text: 'आज का हिसाब' },
-    { when: 'idle', label: 'किसका पैसा बाकी है', text: 'किसका पैसा बाकी है' },
+    { when: 'order', label: 'Rohan का शर्ट ऑर्डर', text: 'Rohan Mehta, 98765 43210, शर्ट, सीना 38, कमर 32, कंधा 17, बाजू 24, लंबाई 29, गला साढ़े 15, स्लिम फिटिंग, दो शर्ट, शुक्रवार डिलीवरी, एडवांस 500' },
+    { when: 'order', label: 'Pooja कुर्ता', text: 'Pooja कुर्ता सीना चौंतीस कमर बत्तीस लंबाई बयालीस, आस्तीन साढ़े बीस, परसों, एडवांस 500' },
+    { when: 'order', label: 'कुर्ता सीना 140', text: 'कुर्ता सीना 140' },
+    { when: 'ask', label: 'किसका पैसा बाकी है?', text: 'किसका पैसा बाकी है' },
+    { when: 'ask', label: 'क्या तैयार है?', text: 'क्या तैयार है' },
+    { when: 'ask', label: 'आज का हिसाब', text: 'आज का हिसाब' },
+    { when: 'ask', label: 'Rohan का ऑर्डर तैयार है', text: 'Rohan का ऑर्डर तैयार है' },
+    { when: 'ask', label: 'इस हफ़्ते क्या ड्यू है?', text: 'इस हफ़्ते क्या ड्यू है' },
     { when: 'card', label: 'गला 15', text: 'गला 15' },
     { when: 'card', label: 'डिलीवरी शनिवार', text: 'डिलीवरी शनिवार' },
     { when: 'card', label: 'एडवांस 1000', text: 'एडवांस 1000' },
@@ -342,6 +345,62 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
     boxRef.current?.focus()
   }
 
+  // One short spoken sentence for every answer, so the tailor can hear it with busy hands.
+  function spokenFor(r: Result | null): string | undefined {
+    if (!r || r.type === 'card') return undefined
+    const byId = new Map(data.customers.map(c => [c.id, c]))
+    const first = (n: string) => n.split(' ')[0]
+    const names = (os: Order[]) => os.slice(0, 3).map(o => first(byId.get(o.customerId)?.name ?? '')).join(', ')
+    const open = data.orders.filter(o => o.status !== 'delivered')
+    const num = (n: number) => n.toLocaleString('en-IN')
+    switch (r.type) {
+      case 'info': return [r.title, r.body].filter(Boolean).join(' ')
+      case 'message': return `${r.headline ?? ''}. ${t('sp.msgReady')}`
+      case 'choice': return t('sp.which', { n: r.customers.length })
+      case 'pickOrder': return t('sp.pick', { name: first(r.customer.name), n: r.orders.length })
+      case 'phone': return r.customer.phone ? t('sp.phone', { name: r.customer.name, phone: r.customer.phone.split('').join(' ') }) : t('q.phoneNone', { name: r.customer.name })
+      case 'balance': {
+        const bal = ordersOf(r.customer).reduce((s, o) => s + (balanceOf(o) ?? 0), 0)
+        return bal ? t('sp.balance', { name: first(r.customer.name), amount: num(bal) }) : t('sp.balanceNone', { name: first(r.customer.name) })
+      }
+      case 'orderList': {
+        const todayISO = toISO(today), weekISO = toISO(addDays(today, 7))
+        if (r.variant === 'owed') {
+          const list = data.orders.filter(o => (balanceOf(o) ?? 0) > 0).sort((a, b) => (balanceOf(b) ?? 0) - (balanceOf(a) ?? 0))
+          if (!list.length) return t('sp.owedNone')
+          const people = new Set(list.map(o => o.customerId)).size
+          return t('sp.owed', { n: people, amount: num(list.reduce((s, o) => s + (balanceOf(o) ?? 0), 0)), name: byId.get(list[0].customerId)?.name ?? '', top: num(balanceOf(list[0]) ?? 0) })
+        }
+        if (r.variant === 'ready') { const l = open.filter(o => o.status === 'ready'); return l.length ? t('sp.ready', { n: l.length, names: names(l) }) : t('sp.readyNone') }
+        if (r.variant === 'trials') { const l = open.filter(o => o.trialDate && o.trialDate >= todayISO && o.trialDate <= weekISO); return l.length ? t('sp.trials', { n: l.length, names: names(l) }) : t('sp.trialsNone') }
+        const l = open.filter(o => o.fabric?.from === 'customer' && o.fabric.received === false)
+        return l.length ? t('sp.fabric', { names: names(l) }) : t('sp.fabricNone')
+      }
+      case 'stats': case 'summary': {
+        const period = r.type === 'summary' ? 'today' : r.period
+        const from = period === 'today' ? today : period === 'week' ? addDays(today, -6) : new Date(today.getFullYear(), today.getMonth(), 1)
+        const fromISO = toISO(from)
+        const inP = (iso?: string) => !!iso && toISO(new Date(iso)) >= fromISO
+        const taken = data.orders.filter(o => inP(o.createdAt))
+        const received = taken.reduce((s, o) => s + o.advance - (o.payments ?? []).reduce((a, p) => a + p.amount, 0), 0)
+          + data.orders.reduce((s, o) => s + (o.payments ?? []).filter(p => inP(p.at)).reduce((a, p) => a + p.amount, 0), 0)
+        if (r.type === 'summary') return t('sp.summary', { orders: taken.length, received: num(received), due: open.filter(o => o.dueDate === toISO(addDays(today, 1))).length })
+        const head = t(({ today: 'q.statsToday', week: 'q.statsWeek', month: 'q.statsMonth' } as const)[period])
+        return t('sp.stats', { period: head, orders: taken.length, received: num(received) })
+      }
+    }
+  }
+  const spoken = spokenFor(result)
+  // Speak each new answer once (not while the tailor edits a card).
+  const lastSpoken = useRef<Result | null>(null)
+  useEffect(() => {
+    if (result && result !== lastSpoken.current && result.type !== 'card') {
+      lastSpoken.current = result
+      const text = spokenFor(result)
+      if (text) speak(text, lang)
+    }
+  })
+
   return (
     <div className="today">
       <div className="today-main">
@@ -375,21 +434,28 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
             <p id="entry-help" className="hint">
               {t('entry.help')} {canSpeak && t('mic.hint')}
             </p>
-            <div className="chips-wrap">
-              <span className="eyebrow" id="try-label">{openDraft ? t('entry.tryCorrection') : t('entry.try')}</span>
-              <div className="chips" role="group" aria-labelledby="try-label">
-                {SAMPLES[lang].filter(s => s.when === (openDraft ? 'card' : 'idle')).map(s => (
-                  <button key={s.label} type="button" className="chip" lang={lang} onClick={() => { setText(s.text); boxRef.current?.focus(); read(s.text) }}>
-                    {s.label}
-                  </button>
-                ))}
+            {(openDraft ? [['card', t('entry.tryCorrection')]] : [['order', t('entry.tryOrder')], ['ask', t('entry.tryAsk')]]).map(([group, title]) => (
+              <div className="chips-wrap" key={group}>
+                <span className="eyebrow" id={`try-${group}`}>{title}</span>
+                <div className="chips" role="group" aria-labelledby={`try-${group}`}>
+                  {SAMPLES[lang].filter(s => s.when === group).map(s => (
+                    <button key={s.label} type="button" className={`chip ${group === 'ask' ? 'chip-ask' : ''}`} lang={lang} onClick={() => { setText(s.text); boxRef.current?.focus(); read(s.text) }}>
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-            {!openDraft && <p className="hint">{t('entry.commands')}</p>}
+            ))}
           </div>
         </section>
 
-        <div aria-live="polite" aria-atomic="false">
+        <div aria-live="polite" aria-atomic="false" className="answer-area">
+          {spoken && (
+            <button type="button" className="btn btn-quiet btn-sm say-again" onClick={() => speak(spoken, lang, true)}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /></svg>
+              {t('sp.again')}
+            </button>
+          )}
           {result?.type === 'card' && (
             <ConfirmCard
               draft={result.draft} data={data} today={today} changes={result.changes} question={result.question}
