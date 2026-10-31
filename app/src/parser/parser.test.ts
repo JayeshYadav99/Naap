@@ -253,3 +253,26 @@ describe('Hindi in Devanagari', () => {
     expect(r.kind === 'correction' && r.draft.items[0].measurements.collar).toBe(15)
   })
 })
+
+describe('From the mixed-language audio recordings', () => {
+  it('self-correction inside one sentence: last value wins', () => {
+    expect(order('shirt chest 41, sleeve 25, no, make it 24.5').items[0].measurements.sleeve).toBe(24.5)
+    expect(order('kurta sleeve 25 nahi 24').items[0].measurements.sleeve).toBe(24)
+    expect(order('shirt collar 15 sorry 15.5, chest 40').items[0].measurements).toMatchObject({ collar: 15.5, chest: 40 })
+  })
+  it('a value said as "not provided" stays blank and flagged', () => {
+    const d = order('shirt chest 41, waist measurement is not provided')
+    expect(d.items[0].measurements.waist).toBeUndefined()
+    expect(d.items[0].unclear).toContain('waist')
+  })
+  it('chatter before the order is not a name', () => {
+    expect(order('Hamai, shirtanuma pleihe, waist 37 inches, shoulder 17, sleeve 24').name).toBeUndefined()
+    expect(order('Lada pati lako, chabi chaliis, kamar chebriis, chest 40, waist 36').name).toBeUndefined()
+    expect(order('haan chalo likho, shirt chest 40').name).toBeUndefined()
+    expect(order('okay so, shirt chest 40').name).toBeUndefined()
+  })
+  it('real names before a garment, number or measurement still work', () => {
+    expect(order('Ravi 2 shirts chest 40').name).toBe('Ravi')
+    expect(order('Meera bust 34 blouse').name).toBe('Meera')
+  })
+})

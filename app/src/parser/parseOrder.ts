@@ -27,6 +27,7 @@ const MONEY_SKIP = new Set(['rs', 'rupees', 'rupee', 'inr', '₹', 'of', 'is', '
 const NAME_STOP = new Set([
   'customer', 'name', 'new', 'order', 'for', 'is', 'mr', 'mrs', 'ms', 'miss', 'shri', 'smt', 'sir', 'madam',
   'ka', 'ki', 'ke', 'the', 'a', 'an', 'okay', 'ok', 'so', 'please', 'and',
+  'haan', 'han', 'ha', 'hmm', 'chalo', 'accha', 'achha', 'bhai', 'bhaiya', 'ji', 'toh', 'lo', 'likho', 'lakho', 'hello', 'now', 'yes',
 ])
 const FILLER = new Set([
   'and', 'the', 'a', 'an', 'is', 'of', 'to', 'for', 'with', 'by', 'on', 'at', 'in', 'fit', 'fitting', 'delivery',
@@ -211,8 +212,13 @@ export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
       let s = 0
       while (s < toks.length && (NAME_STOP.has(toks[s].low) || toks[s].punct)) s++
       const r = capWords(s)
-      // Leading words count as a name only when followed by something order-like.
-      if (r.words.length && r.end < toks.length) nameHit = { start: s, end: r.end, words: r.words }
+      // Leading words count as a name only when the next thing said is a garment, a number or a measurement.
+      // That keeps chatter like "okay so," or "chalo, likho" from becoming the customer's name.
+      let nx = r.end
+      while (nx < toks.length && toks[nx].punct) nx++
+      const next = toks[nx]
+      const orderLike = !!next && (isGarmentWord(next.low) || next.n !== undefined || !!matchMeasure(toks, nx))
+      if (r.words.length && orderLike) nameHit = { start: s, end: r.end, words: r.words }
     }
     if (nameHit) {
       draft.name = titleCase(nameHit.words.join(' '))
@@ -296,6 +302,20 @@ export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
         const u = toks[numIdx + 1]?.low
         if (u === 'cm' || u === 'cms' || u === 'centimeter' || u === 'centimeters' || u === 'centimetre' || u === 'centimetres') { unit = 'cm'; used[numIdx + 1] = true }
         else if (u === 'inch' || u === 'inches' || u === 'in' && toks[numIdx + 2]?.n === undefined) { unit = 'in'; if (u !== 'in') used[numIdx + 1] = true }
+        // Self-correction in the same breath: "sleeve 25, no, make it 24.5" / "25 nahi 24" -> the last value wins.
+        {
+          let k = numIdx + 1
+          while (k < toks.length && (used[k] || toks[k].punct)) k++
+          if (/^(no|nahi|nahin|sorry|actually|matlab)$/.test(toks[k]?.low ?? '')) {
+            let j = k + 1
+            while (j < toks.length && j <= k + 4 && (toks[j].punct || /^(make|it|change|to|is|i|mean|nahi|no|,)$/.test(toks[j].low))) j++
+            if (toks[j]?.n !== undefined && !used[j]) {
+              for (let x = k; x <= j; x++) used[x] = true
+              value = toks[j].n!
+              numIdx = j
+            }
+          }
+        }
         if (unit === 'cm') { value = Math.round((value / 2.54) * 100) / 100; item.cmSpoken.push(mm.key) }
         item.measurements[mm.key] = value
         item.unclear = item.unclear.filter(k => k !== mm.key)
