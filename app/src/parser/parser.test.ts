@@ -315,3 +315,19 @@ describe('Phone at the end of a sentence', () => {
     expect(order('shirt chest 38.5 waist 32').phone).toBeUndefined()
   })
 })
+
+describe('Names spelled differently by speech-to-text', () => {
+  const customers: Customer[] = [
+    { id: 'm', name: 'Meera Shah', createdAt: '' },
+    { id: 'r', name: 'Rohan Mehta', createdAt: '' },
+    { id: 'k', name: 'Kavita Desai', createdAt: '' },
+  ]
+  it.each([
+    ['mira', 'm'], ['मीरा', 'm'], ['meera', 'm'], ['रोहन', 'r'], ['rohaan', 'r'], ['कविता', 'k'], ['kavitha', 'k'],
+  ])('%s', (spoken, id) => {
+    expect(findCustomers(spoken, customers).map(c => c.id)).toEqual([id])
+  })
+  it('end to end: "Mira ka order taiyar hai" names mira', () => {
+    expect(interpret('Mira ka order taiyar hai', opts)).toMatchObject({ kind: 'command', command: { kind: 'status', who: 'mira' } })
+  })
+})
