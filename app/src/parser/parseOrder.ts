@@ -22,6 +22,18 @@ export function extractPhone(text: string): { phone?: string; rest: string } {
   return { rest: text }
 }
 
+const SPEAKER_LABEL = /(^|\n)\s*(tailor|customer|helper|assistant|darzi|grahak|master|karigar)\s*:/gi
+// Question-and-answer filler between a measurement and its number: "Chest kitna aa raha hai? 40 inch hai."
+const QA_FILLER = new Set([
+  'kitna', 'kitni', 'kitne', 'kya', 'bolo', 'batao', 'aa', 'raha', 'rahi', 'rahe', 'hai', 'hain', 'rakhein', 'rakhna', 'rakhe', 'rakho',
+  'rakhjo', 'ketli', 'ketlu', 'che', 'chhe', 'ni', 'nu', 'no', 'how', 'much', 'what', 'is', 'the', 'haan', 'ha', 'achha', 'accha',
+  'okay', 'ok', 'ji', 'bhai', 'bhaiya', 'boliye', 'please', 'full', 'ka', 'ki', 'ke', 'ko', 'itna', 'measurement',
+])
+// Words that may sit between a value and a spoken change of mind: "36 inch likho. Nahi bhaiya, 35.5".
+const BEFORE_CHANGE = new Set(['likho', 'lakho', 'hai', 'bhaiya', 'bhai', 'ji', 'okay', 'ok', 'inch', 'inches', 'rakhna', 'rakho'])
+const CHANGE_WORD = /^(no|nahi|nahin|nai|sorry|actually|matlab)$/
+const AFTER_CHANGE = new Set(['make', 'it', 'change', 'to', 'is', 'i', 'mean', 'nahi', 'no', 'bhaiya', 'bhai', 'ji', 'kar', 'do', 'dena', 'haan'])
+
 const SKIP_AFTER_KEY = new Set(['is', 'to', 'of', '-', ':', '=', 'ka', 'ki', 'ke', 'hai', 'should', 'be', 'make', 'it', 'about', 'around', 'size'])
 const MONEY_SKIP = new Set(['rs', 'rupees', 'rupee', 'inr', '₹', 'of', 'is', ':', '-', '='])
 const NAME_STOP = new Set([
@@ -75,7 +87,9 @@ export interface ParseResult {
 export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
   const found = new Set<string>()
   const defaultUnit = opts.unit ?? 'in'
-  const { phone, rest } = extractPhone(normalizeScript(rawText))
+  // Transcripts of a conversation may carry speaker labels ("Tailor:", "Customer:"); they are not part of the order.
+  const spoken = normalizeScript(rawText).replace(SPEAKER_LABEL, ' ')
+  const { phone, rest } = extractPhone(spoken)
   if (phone) found.add('phone')
 
   const toks = numberize(tokenize(rest))
@@ -255,7 +269,12 @@ export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
         qty = toks[j].n; used[j] = used[j + 1] = true
       }
       const same = current?.garment === g || (!current && pending.garment === g)
-      if (same) {
+      // "Ek shirt aur ek pant … Shirt ka chest 40 … Pant ka waist 34": go back to the item already named.
+      const earlier = !same ? draft.items.find(it => it.garment === g) : undefined
+      if (earlier) {
+        current = earlier
+        if (qty) current.quantity = qty
+      } else if (same) {
         if (qty) target().quantity = qty
       } else if (current && !current.garment) {
         current.garment = g
@@ -277,9 +296,15 @@ export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
     }
     if (tk.low in FIT_WORDS) {
       const next = toks[i + 1]?.low
+      // Not a choice: "tight nahi chahiye", or a question "regular rakhvu che ke slim?"
+      const negated = toks.slice(i + 1, i + 4).some(x => /^(nahi|nahin|not|no|nai|mat)$/.test(x.low))
+      let e = i + 1
+      while (e < toks.length && !(toks[e].punct && /[.,;!?]/.test(toks[e].low))) e++
+      const asked = toks[e]?.low === '?'
+      used[i] = true
+      if (negated || asked) continue
       // "slim fit" / "loose fitting"; bare "slim" also counts
       target().fit = FIT_WORDS[tk.low]
-      used[i] = true
       if (next === 'fit' || next === 'fitting') used[i + 1] = true
       found.add('fit')
       continue
@@ -293,6 +318,12 @@ export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
       let numIdx = -1
       if (toks[j]?.n !== undefined && !used[j]) numIdx = j
       else if (i > 0 && toks[i - 1].n !== undefined && !used[i - 1] && i - 1 > lastNumIdx) numIdx = i - 1 // "38 chest"
+      else {
+        // Asked, then answered: "Waist bolo. 34 inch." / "Chest ketli che? 41 inch che." Stops at anything else said.
+        let q = j
+        while (q < toks.length && q < j + 10 && !used[q] && (toks[q].punct || QA_FILLER.has(toks[q].low))) q++
+        if (q > j && toks[q]?.n !== undefined && !used[q]) numIdx = q
+      }
       const item = target()
       if (numIdx >= 0) {
         used[numIdx] = true
@@ -305,10 +336,10 @@ export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
         // Self-correction in the same breath: "sleeve 25, no, make it 24.5" / "25 nahi 24" -> the last value wins.
         {
           let k = numIdx + 1
-          while (k < toks.length && (used[k] || toks[k].punct)) k++
-          if (/^(no|nahi|nahin|sorry|actually|matlab)$/.test(toks[k]?.low ?? '')) {
+          while (k < toks.length && k <= numIdx + 6 && (used[k] || toks[k].punct || BEFORE_CHANGE.has(toks[k].low))) k++
+          if (CHANGE_WORD.test(toks[k]?.low ?? '')) {
             let j = k + 1
-            while (j < toks.length && j <= k + 4 && (toks[j].punct || /^(make|it|change|to|is|i|mean|nahi|no|,)$/.test(toks[j].low))) j++
+            while (j < toks.length && j <= k + 4 && (toks[j].punct || AFTER_CHANGE.has(toks[j].low))) j++
             if (toks[j]?.n !== undefined && !used[j]) {
               for (let x = k; x <= j; x++) used[x] = true
               value = toks[j].n!
@@ -316,7 +347,8 @@ export function parseOrder(rawText: string, opts: ParseOptions): ParseResult {
             }
           }
         }
-        if (unit === 'cm') { value = Math.round((value / 2.54) * 100) / 100; item.cmSpoken.push(mm.key) }
+        if (unit === 'cm') { value = Math.round((value / 2.54) * 100) / 100; if (!item.cmSpoken.includes(mm.key)) item.cmSpoken.push(mm.key) }
+        else item.cmSpoken = item.cmSpoken.filter(k => k !== mm.key)
         item.measurements[mm.key] = value
         item.unclear = item.unclear.filter(k => k !== mm.key)
         lastNumIdx = numIdx
