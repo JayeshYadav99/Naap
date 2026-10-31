@@ -185,6 +185,7 @@ export const en = {
   'q.orders': 'Orders taken', 'q.garments': 'Garments', 'q.value': 'Order value', 'q.received': 'Money received', 'q.delivered': 'Delivered',
   'q.phoneNone': '{name} has no phone saved.', 'q.call': 'Call', 'q.sendBalance': 'Send balance reminder', 'q.sendReady': 'Send ready message',
   'q.trialOn': 'trial {date}', 'q.noOrders': '{name} has no orders yet.', 'q.open': 'Open',
+  'sp.says': 'Naap says',
   'sp.again': 'Say it again', 'sp.on': 'Spoken answers on', 'sp.off': 'Spoken answers off',
   'sp.owed': '{n} customers owe money. Total Rs {amount}. Highest is {name}, Rs {top}.', 'sp.owedNone': 'Nobody owes money right now.',
   'sp.ready': '{n} ready for pickup: {names}.', 'sp.readyNone': 'Nothing is ready for pickup yet.',

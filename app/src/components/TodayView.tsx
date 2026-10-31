@@ -431,9 +431,7 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
                 <button type="button" className="btn btn-primary" onClick={() => read()} disabled={!text.trim()}>{t('entry.readNow')}</button>
               </div>
             </div>
-            <p id="entry-help" className="hint">
-              {t('entry.help')} {canSpeak && t('mic.hint')}
-            </p>
+            <p id="entry-help" className="hint">{t('entry.help')}</p>
             {(openDraft ? [['card', t('entry.tryCorrection')]] : [['order', t('entry.tryOrder')], ['ask', t('entry.tryAsk')]]).map(([group, title]) => (
               <div className="chips-wrap" key={group}>
                 <span className="eyebrow" id={`try-${group}`}>{title}</span>
@@ -451,10 +449,13 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
 
         <div aria-live="polite" aria-atomic="false" className="answer-area">
           {spoken && (
-            <button type="button" className="btn btn-quiet btn-sm say-again" onClick={() => speak(spoken, lang, true)}>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /></svg>
-              {t('sp.again')}
-            </button>
+            <div className="reply-head">
+              <span className="reply-who"><span className="reply-dot" aria-hidden="true" />{t('sp.says')}</span>
+              <button type="button" className="btn btn-quiet btn-sm" onClick={() => speak(spoken, lang, true)}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5Z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" /></svg>
+                {t('sp.again')}
+              </button>
+            </div>
           )}
           {result?.type === 'card' && (
             <ConfirmCard

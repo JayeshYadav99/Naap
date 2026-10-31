@@ -195,7 +195,7 @@ export default function TailorApp() {
               aria-label={undoLabel ? t('top.undo', { label: undoLabel }) : t('top.nothingToUndo')} title={undoLabel ? t('top.undo', { label: undoLabel }) : t('top.nothingToUndo')}>
               <Icon.undo />
             </button>
-            <button type="button" className="icon-btn" onClick={toggle} aria-label={theme === 'dark' ? t('top.toLight') : t('top.toDark')}>
+            <button type="button" className="icon-btn theme-btn" onClick={toggle} aria-label={theme === 'dark' ? t('top.toLight') : t('top.toDark')}>
               {theme === 'dark' ? <Icon.sun /> : <Icon.moon />}
             </button>
           </div>
@@ -206,7 +206,7 @@ export default function TailorApp() {
         {mode === 'demo' && (
           <p className="demo-bar">
             <strong>{t('demo.bar')}</strong> {t('demo.barText')}
-            <button type="button" className="btn btn-ghost btn-sm" onClick={leaveDemo}>{t('demo.signIn')}</button>
+            <button type="button" className="demo-link" onClick={leaveDemo}>{t('demo.signIn')}</button>
           </p>
         )}
         {mode === 'signedOut' ? <AuthScreen onSignedIn={async s => { await signedIn(s); go('#today') }} onDemo={() => { startDemo(); go('#today') }} /> : !data ? <p className="loading" role="status">{t('loading')}</p> : (

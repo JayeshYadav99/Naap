@@ -403,3 +403,22 @@ main { padding-block: 20px; }
 .chip-ask { border-color: var(--ok); color: var(--ok); }
 .chip-ask:hover { background: var(--ok-bg); }
 .icon-btn[aria-pressed="false"] { color: var(--muted); }
+
+/* ---------- Polish: phone header, demo bar, replies ---------- */
+.demo-bar { font-size: .9rem; padding: 6px 12px; gap: 4px 10px; }
+.demo-link { background: none; border: 0; padding: 4px 0; color: var(--warn); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; min-height: 32px; }
+@media (max-width: 599px) {
+  .topbar-inner { gap: 8px; min-height: 60px; }
+  .brand-mark { width: 34px; height: 34px; }
+  .brand-name { font-size: 1.1rem; }
+  .top-actions { gap: 6px; }
+  .top-actions .icon-btn { min-width: 42px; min-height: 42px; }
+  .theme-btn { display: none; }
+  .entry-body { padding: 14px 14px 16px; }
+  .entry-box { font-size: 1.15rem; min-height: 120px; }
+}
+.reply-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.reply-who { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: .85rem; letter-spacing: .04em; text-transform: uppercase; color: var(--ok); }
+.reply-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px var(--ok-bg); }
+.answer-area .result { border-top-left-radius: 4px; }
+.entry-label { font-size: 1.35rem; }

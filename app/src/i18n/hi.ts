@@ -172,6 +172,7 @@ export const hi: Record<Key, string> = {
   'q.orders': 'लिए गए ऑर्डर', 'q.garments': 'कपड़े', 'q.value': 'ऑर्डर की कीमत', 'q.received': 'मिले पैसे', 'q.delivered': 'दिए गए',
   'q.phoneNone': '{name} का फ़ोन सेव नहीं है।', 'q.call': 'कॉल करें', 'q.sendBalance': 'बाकी की याद भेजें', 'q.sendReady': 'तैयार का संदेश भेजें',
   'q.trialOn': 'ट्रायल {date}', 'q.noOrders': '{name} का अभी कोई ऑर्डर नहीं।', 'q.open': 'खोलें',
+  'sp.says': 'नाप का जवाब',
   'sp.again': 'फिर से सुनाएँ', 'sp.on': 'बोलकर जवाब चालू', 'sp.off': 'बोलकर जवाब बंद',
   'sp.owed': '{n} ग्राहकों का पैसा बाकी है। कुल ₹{amount}। सबसे ज़्यादा {name}, ₹{top}।', 'sp.owedNone': 'अभी किसी का पैसा बाकी नहीं।',
   'sp.ready': '{n} ऑर्डर तैयार हैं: {names}।', 'sp.readyNone': 'अभी कुछ तैयार नहीं।',

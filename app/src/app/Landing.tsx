@@ -12,6 +12,7 @@ interface Copy {
   featTitle: string; features: { title: string; body: string }[]
   a11yTitle: string; a11yLede: string; checks: string[]
   ctaTitle: string; ctaLede: string; create: string; footer1: string; footer2: string
+  pills: string[]; askTitle: string; askLede: string; you: string; naap: string; convo: [string, string][]
 }
 
 const COPY: Record<Lang, Copy> = {
@@ -57,6 +58,16 @@ const COPY: Record<Lang, Copy> = {
     create: 'Create your shop',
     footer1: 'Built by voice with Wispr Flow for No Hands: The Wispr Challenge. Sample customers are made up.',
     footer2: 'Honest limits: rule-based reading can miss unusual phrasing, so the card always shows what was understood and keeps what you said. The browser microphone sends audio to the browser maker for recognition; Wispr Flow and typing do not go through the browser.',
+    pills: ['English', 'हिन्दी', 'Hinglish', 'Works with Wispr Flow'],
+    askTitle: 'Talk to it like a helper',
+    askLede: 'The same box takes orders, fixes and questions. Naap answers on screen and out loud, so your hands stay on the tape.',
+    you: 'You', naap: 'Naap',
+    convo: [
+      ['collar is 15, not 15 and a half', 'Collar changed from 15½ to 15.'],
+      ['who still owes money?', '6 customers owe money. Total ₹16,700. Highest is Imran Shaikh, ₹7,000.'],
+      ['Meera ka order taiyar hai', 'Meera’s 3 blouses are ready. The WhatsApp message is ready to send.'],
+      ['how many orders this month?', 'This month: 8 orders, ₹10,800 received.'],
+    ],
   },
   hi: {
     skip: 'मुख्य हिस्से पर जाएँ', tagline: 'दर्ज़ी की बोलने वाली नाप-पुस्तिका', signIn: 'साइन इन',
@@ -100,6 +111,16 @@ const COPY: Record<Lang, Copy> = {
     create: 'अपनी दुकान बनाएँ',
     footer1: 'No Hands: The Wispr Challenge के लिए Wispr Flow से बोलकर बनाया गया। नमूना ग्राहक काल्पनिक हैं।',
     footer2: 'सच्ची सीमाएँ: नियम-आधारित पढ़ाई अनोखे वाक्य चूक सकती है, इसलिए कार्ड हमेशा दिखाता है कि क्या समझा गया और आपकी बात रखता है। ब्राउज़र का माइक पहचान के लिए आवाज़ ब्राउज़र कंपनी को भेजता है; Wispr Flow और टाइपिंग ब्राउज़र से नहीं जाते।',
+    pills: ['हिन्दी', 'English', 'Hinglish', 'Wispr Flow के साथ'],
+    askTitle: 'कारीगर की तरह बात कीजिए',
+    askLede: 'एक ही बॉक्स में ऑर्डर, सुधार और सवाल। नाप स्क्रीन पर भी जवाब देता है और बोलकर भी, ताकि आपके हाथ फीते पर रहें।',
+    you: 'आप', naap: 'नाप',
+    convo: [
+      ['गला 15 कर दो', 'गला 15½ से 15 कर दिया।'],
+      ['किसका पैसा बाकी है?', '6 ग्राहकों का पैसा बाकी है। कुल ₹16,700। सबसे ज़्यादा Imran Shaikh, ₹7,000।'],
+      ['Meera का ऑर्डर तैयार है', 'Meera के 3 ब्लाउज़ तैयार हैं। WhatsApp संदेश भेजने के लिए तैयार है।'],
+      ['इस महीने कितने ऑर्डर?', 'इस महीने: 8 ऑर्डर, ₹10,800 मिले।'],
+    ],
   },
 }
 
@@ -131,6 +152,9 @@ export default function Landing() {
           <div className={`wrap ${s.heroGrid}`}>
             <div className={s.heroCopy}>
               <p className={s.kicker}>{c.kicker}</p>
+              <ul className={s.pills} aria-label="Languages">
+                {c.pills.map((x, i) => <li key={x} className={i === c.pills.length - 1 ? s.pillFlow : s.pill}>{x}</li>)}
+              </ul>
               <h1 id="hero-title" className={s.title}>{c.title1} <span className={s.titleAccent}>{c.title2}</span></h1>
               <p className={s.lede}>{c.lede}</p>
               <div className="row-actions">
@@ -179,7 +203,24 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className={`${s.section} ${s.alt} gutter`} aria-labelledby="feat-title">
+        <section className={`${s.section} ${s.alt} gutter`} aria-labelledby="ask-title">
+          <div className={`wrap ${s.split}`}>
+            <div>
+              <h2 id="ask-title" className={s.h2}>{c.askTitle}</h2>
+              <p className={s.lede}>{c.askLede}</p>
+            </div>
+            <ol className={s.convo}>
+              {c.convo.map(([q, a]) => (
+                <li key={q} className={s.turn}>
+                  <p className={s.bubbleYou}><span className={s.who}>{c.you}</span>{q}</p>
+                  <p className={s.bubbleNaap}><span className={s.who}>🔊 {c.naap}</span>{a}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className={`${s.section} gutter`} aria-labelledby="feat-title">
           <div className="wrap">
             <h2 id="feat-title" className={s.h2}>{c.featTitle}</h2>
             <ul className={s.features}>
@@ -193,7 +234,7 @@ export default function Landing() {
           </div>
         </section>
 
-        <section className={`${s.section} gutter`} aria-labelledby="a11y-title">
+        <section className={`${s.section} ${s.alt} gutter`} aria-labelledby="a11y-title">
           <div className={`wrap ${s.split}`}>
             <div>
               <h2 id="a11y-title" className={s.h2}>{c.a11yTitle}</h2>
@@ -216,6 +257,10 @@ export default function Landing() {
           </div>
         </section>
       </main>
+
+      <div className={s.stickyCta}>
+        <Link href="/app?demo=1" className="btn btn-primary btn-lg">{c.tryDemo}</Link>
+      </div>
 
       <footer className={`${s.footer} gutter`}>
         <div className="wrap">
