@@ -337,9 +337,6 @@ export function ConfirmCard({ draft, data, today, changes, question, onChange, o
           </div>
         </details>
 
-        {draft.unmatched.length > 0 && (
-          <p className="unmatched">{t('card.notUnderstood', { words: draft.unmatched.join(' ') })}</p>
-        )}
         <p className="said">{t('card.said')} <q>{draft.rawText}</q></p>
       </div>
 

@@ -393,11 +393,21 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
   const spoken = spokenFor(result)
   // Speak each new answer once (not while the tailor edits a card).
   const lastSpoken = useRef<Result | null>(null)
+  const answerRef = useRef<HTMLDivElement>(null)
+  const lastShownType = useRef<string | undefined>(undefined)
   useEffect(() => {
     if (result && result !== lastSpoken.current && result.type !== 'card') {
       lastSpoken.current = result
       const text = spokenFor(result)
       if (text) speak(text, lang)
+    }
+    // Bring each new answer (or a newly opened card) into view and flash it, so the eye goes straight to it.
+    const isNew = result && (result.type !== 'card' || lastShownType.current !== 'card')
+    lastShownType.current = result?.type
+    if (isNew && answerRef.current) {
+      const el = answerRef.current
+      el.classList.remove('flash-in'); void el.offsetWidth; el.classList.add('flash-in')
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   })
 
@@ -447,7 +457,7 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
           </div>
         </section>
 
-        <div aria-live="polite" aria-atomic="false" className="answer-area">
+        <div aria-live="polite" aria-atomic="false" className="answer-area" ref={answerRef}>
           {spoken && (
             <div className="reply-head">
               <span className="reply-who"><span className="reply-dot" aria-hidden="true" />{t('sp.says')}</span>

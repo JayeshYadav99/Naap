@@ -422,3 +422,12 @@ main { padding-block: 20px; }
 .reply-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px var(--ok-bg); }
 .answer-area .result { border-top-left-radius: 4px; }
 .entry-label { font-size: 1.35rem; }
+
+/* New answer: scrolled into view and briefly highlighted */
+.answer-area { scroll-margin-top: 84px; border-radius: var(--r); }
+.answer-area.flash-in > .result, .answer-area.flash-in > .card { animation: answer-flash 1.8s ease-out; }
+@keyframes answer-flash {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tape) 90%, transparent); }
+  25% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--tape) 70%, transparent); }
+  100% { box-shadow: var(--shadow); }
+}
