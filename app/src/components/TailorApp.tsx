@@ -24,6 +24,9 @@ export type Result =
   | { type: 'balance'; customer: Customer }
   | { type: 'pickOrder'; command: Command; customer: Customer; orders: Order[] }
   | { type: 'summary' }
+  | { type: 'orderList'; variant: 'owed' | 'ready' | 'trials' | 'fabric' }
+  | { type: 'stats'; period: 'today' | 'week' | 'month' }
+  | { type: 'phone'; customer: Customer }
 
 const NAV: { hash: string; label: Key; icon: () => React.ReactElement }[] = [
   { hash: '#today', label: 'nav.today', icon: Icon.today },

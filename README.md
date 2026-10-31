@@ -37,6 +37,7 @@ Tailor speaks ──► Wispr Flow (or the built-in mic, or typing) ──► te
 - Due list: Overdue (red), Today, Tomorrow, This week, Later, with balance to collect
 - Orders board: New → Cutting → Stitching → Ready → Delivered
 - Commands: “ready Rohan”, “ready 47”, “ready Rohan kurta”, “delivered Meera”, “balance Rajesh”, “paid 500 Meera”, “today’s summary”, “what’s due this week”, “Rohan’s measurements”, “undo”
+- Shop questions: “who still owes money” / “kiska paisa baaki hai”, “what’s ready”, “any trials this week”, “whose fabric hasn’t come”, “how many orders this month”, “how much did I earn this week”, “Rohan’s phone number”, “Rohan’s last order”
 - Asks instead of guessing: two customers named Rohan, or two open orders → a choice list
 
 **Customers and money**
@@ -69,7 +70,7 @@ Tailor speaks ──► Wispr Flow (or the built-in mic, or typing) ──► te
 | Database | Neon Postgres via `pg`, through Next.js API routes (`app/src/server/`, `app/src/app/api/`) |
 | Auth | scrypt password hashes, signed HTTP-only session cookie, lockout after 5 wrong tries |
 | Speech | Wispr Flow (primary); Web Speech API mic button as a fallback (Chrome, Edge, Android Chrome) |
-| Tests | Vitest: 49 parser tests including the spec’s 10 test sentences |
+| Tests | Vitest: 79 tests, including the spec’s 10 test sentences and 7 real shop conversations |
 
 ## Run it locally
 

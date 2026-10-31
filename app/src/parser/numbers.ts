@@ -220,7 +220,7 @@ const DV: [string, string][] = [
   ['de', 'दे'], ['diya', 'दिया'], ['hisaab', 'हिसाब'], ['dikhao', 'दिखाओ दिखाइए'], ['naap', 'नाप'], ['balance', 'बैलेंस'],
   ['undo', 'अनडू'], ['madad', 'मदद'], ['delivery', 'डिलीवरी'], ['note', 'नोट'], ['trial', 'ट्रायल'], ['fitting', 'फिटिंग'],
   ['kapda', 'कपड़ा कपडा'], ['apna', 'अपना'], ['inch', 'इंच'], ['cm', 'सेमी सेंटीमीटर'], ['ready', 'रेडी'], ['due', 'ड्यू'],
-  ['kya', 'क्या'], ['nahi', 'नहीं नही'], ['and', 'और'], ['half', 'आधा'], ['order', 'ऑर्डर आर्डर'], ['remind', 'याद'], ['name', 'नाम'], ['hai', 'है'],
+  ['kya', 'क्या'], ['nahi', 'नहीं नही'], ['and', 'और'], ['half', 'आधा'], ['order', 'ऑर्डर आर्डर'], ['remind', 'याद'], ['name', 'नाम'], ['paisa', 'पैसा पैसे'], ['kiska', 'किसका किसके'], ['kaun', 'कौन'], ['number', 'नंबर नम्बर'], ['phone', 'फ़ोन फोन'], ['pichla', 'पिछला'], ['mahine', 'महीने महीना'], ['kitne', 'कितने'], ['kitna', 'कितना'], ['kamaya', 'कमाया'], ['aaya', 'आया'], ['week', 'हफ़्ता'], ['hai', 'है'],
 ]
 for (const [latin, words] of DV) for (const w of words.split(' ')) DEVANAGARI[w] = latin
 

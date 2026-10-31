@@ -276,3 +276,35 @@ describe('From the mixed-language audio recordings', () => {
     expect(order('Meera bust 34 blouse').name).toBe('Meera')
   })
 })
+
+describe('Shop questions', () => {
+  it.each([
+    ['who still owes money', { kind: 'owed' }],
+    ['kiska paisa baaki hai', { kind: 'owed' }],
+    ['किसका पैसा बाकी है', { kind: 'owed' }],
+    ["what's ready", { kind: 'readyList' }],
+    ['kya ready hai', { kind: 'readyList' }],
+    ['kya taiyar hai', { kind: 'readyList' }],
+    ['any trials this week', { kind: 'trials' }],
+    ['trial kab hai', { kind: 'trials' }],
+    ["whose fabric hasn't come", { kind: 'fabricPending' }],
+    ['kapda nahi aaya', { kind: 'fabricPending' }],
+    ['fabric pending', { kind: 'fabricPending' }],
+    ['how many orders this month', { kind: 'stats', period: 'month' }],
+    ['how much did I earn this week', { kind: 'stats', period: 'week' }],
+    ['is mahine kitna kamaya', { kind: 'stats', period: 'month' }],
+    ["Rohan's phone number", { kind: 'phone', who: 'rohan' }],
+    ['Rohan ka number', { kind: 'phone', who: 'rohan' }],
+    ["Rohan's last order", { kind: 'lastOrder', who: 'rohan' }],
+    ['Rohan ka pichla order', { kind: 'lastOrder', who: 'rohan' }],
+  ])('%s', (text, cmd) => {
+    expect(interpret(text, opts)).toEqual({ kind: 'command', command: cmd })
+  })
+  it('existing commands still work', () => {
+    expect(interpret('ready Rohan', opts)).toMatchObject({ kind: 'command', command: { kind: 'status', who: 'rohan' } })
+    expect(interpret('due tomorrow', opts)).toMatchObject({ kind: 'command', command: { kind: 'due', filter: 'tomorrow' } })
+    expect(interpret("today's summary", opts)).toMatchObject({ kind: 'command', command: { kind: 'summary' } })
+    expect(interpret('Rohan ka order taiyar hai', opts)).toMatchObject({ kind: 'command', command: { kind: 'status', who: 'rohan' } })
+    expect(interpret('Imran sherwani chest 40, trial Tuesday', opts).kind).toBe('order')
+  })
+})

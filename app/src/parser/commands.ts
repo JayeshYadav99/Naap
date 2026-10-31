@@ -14,6 +14,33 @@ export type Command =
   | { kind: 'undo' }
   | { kind: 'help' }
   | { kind: 'summary' }
+  | { kind: 'owed' }
+  | { kind: 'readyList' }
+  | { kind: 'trials' }
+  | { kind: 'fabricPending' }
+  | { kind: 'stats'; period: 'today' | 'week' | 'month' }
+  | { kind: 'phone'; who: string }
+  | { kind: 'lastOrder'; who: string }
+
+/** Questions about the whole shop, checked before the per-customer commands. */
+function shopQuestion(t: string): Command | undefined {
+  // "who still owes money", "kiska paisa baaki hai", "unpaid", "pending payments"
+  if (/\b(owes?|owe money|unpaid|pending payments?|payment pending|dues)\b/.test(t) || /\b(kiska|kiske|kis ka|kaun|kin)\b.*\b(paisa|paise|baaki|bakaya|udhaar|udhar)\b/.test(t) || /\b(paisa|paise|udhaar|udhar)\b.*\bbaaki\b.*\b(kiska|kaun|kis)\b/.test(t))
+    return { kind: 'owed' }
+  // "what's ready", "kya ready hai", "kya taiyar hai", "ready for pickup"
+  if (/^(what'?s|what is|which|kya|kaun sa|kaunse|kaun se|show)( orders?| kapde| order)? (ready|taiyar|tayyar)( hai| hain| for pickup)?$/.test(t) || /\b(ready for pickup|ready orders|pickup list|taiyar kapde)\b/.test(t))
+    return { kind: 'readyList' }
+  // "any trials this week", "trial kab hai", "trials"
+  if (/\btrials?\b|\bfitting(s)? (this|is|kab)/.test(t) && !/\d/.test(t)) return { kind: 'trials' }
+  // "whose fabric hasn't come", "kapda nahi aaya", "fabric pending"
+  if (/\b(fabric|cloth|kapda|kapde|kapra)\b.*\b(pending|not (come|received|arrived)|nahi aaya|nahi aaye|baaki|hasn'?t come|missing)\b/.test(t) || /\b(whose|kiska|kiske) (fabric|cloth|kapda)\b/.test(t))
+    return { kind: 'fabricPending' }
+  // "how many orders this month", "kitna kamaya is mahine", "earnings this week"
+  const period = /\b(month|mahine|mahina|maheene)\b/.test(t) ? 'month' : /\b(week|hafte|hafta)\b/.test(t) ? 'week' : /\b(today|aaj)\b/.test(t) ? 'today' : undefined
+  if (/\b(how many|kitne|kitna|earn|earned|earnings|kamaya|kamai|income|sales|business|revenue|collection)\b/.test(t) && period && !/\b(due|pending)\b/.test(t))
+    return { kind: 'stats', period }
+  return undefined
+}
 
 const clean = (s: string) =>
   s.toLowerCase()
@@ -59,6 +86,18 @@ export function parseCommand(raw: string): Command | undefined {
     if (inner && (inner.kind === 'status' || inner.kind === 'remind')) return { ...inner, garment }
     return undefined
   }
+
+  const q = shopQuestion(t)
+  if (q) return q
+
+  // "Rohan's phone", "Rohan ka number", "phone number of Rohan"
+  let pm: RegExpMatchArray | null
+  if ((pm = t.match(/^(?:what is |what's )?(.+?)(?:'s| ka| ki| ke)? (?:phone|mobile|contact|number)(?: number)?(?: kya hai| batao| do| hai)?$/)) && who(pm[1]) && !/^\d+$/.test(pm[1]))
+    return { kind: 'phone', who: who(pm[1]) }
+  if ((pm = t.match(/^(?:phone|mobile|contact)(?: number)? (?:of |for )?(.+)$/)) && who(pm[1])) return { kind: 'phone', who: who(pm[1]) }
+  // "Rohan's last order", "Rohan ka pichla order", "last order of Rohan"
+  if ((pm = t.match(/^(.+?)(?:'s| ka| ki| ke)? (?:last|latest|previous|pichla|pichhla|aakhri) order(?: kya tha| dikhao| batao)?$/)) && who(pm[1])) return { kind: 'lastOrder', who: who(pm[1]) }
+  if ((pm = t.match(/^(?:last|latest|previous) order (?:of |for )?(.+)$/)) && who(pm[1])) return { kind: 'lastOrder', who: who(pm[1]) }
 
   // Due lists
   if (/\b(due|pending|overdue|late|deliveries|baaki kaam|kya due)\b/.test(t) && !/\bbalance\b/.test(t)) {

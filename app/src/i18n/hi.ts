@@ -164,4 +164,12 @@ export const hi: Record<Key, string> = {
   'auth.demoText': 'बस देख रहे हैं? डेमो दुकान में नमूना ऑर्डर हैं, खाते की ज़रूरत नहीं। यह सिर्फ़ इसी डिवाइस पर सेव होती है।', 'auth.demo': 'डेमो दुकान खोलें',
   'auth.e.shopName': 'दुकान का नाम डालें।', 'auth.e.phone': '10 अंकों का मोबाइल नंबर डालें।', 'auth.e.password': 'पासवर्ड कम से कम 6 अक्षर का हो।',
   'auth.e.exists': 'इस मोबाइल नंबर से पहले से दुकान है। साइन इन करें।', 'auth.e.wrong': 'मोबाइल नंबर या पासवर्ड गलत है।', 'auth.e.locked': 'बहुत बार गलत कोशिश। 10 मिनट रुककर फिर कोशिश करें।',
+  'q.owedTitle': 'किसका पैसा बाकी है ({n})', 'q.owedEmpty': 'अभी किसी का पैसा बाकी नहीं।', 'q.owedTotal': 'कुल वसूली: {amount}',
+  'q.readyTitle': 'लेने के लिए तैयार ({n})', 'q.readyEmpty': 'अभी कुछ तैयार नहीं।',
+  'q.trialsTitle': 'अगले 7 दिन के ट्रायल ({n})', 'q.trialsEmpty': 'अगले 7 दिन कोई ट्रायल नहीं।',
+  'q.fabricTitle': 'कपड़ा अभी नहीं आया ({n})', 'q.fabricEmpty': 'सबका कपड़ा आ गया है।',
+  'q.statsToday': 'आज', 'q.statsWeek': 'पिछले 7 दिन', 'q.statsMonth': 'इस महीने',
+  'q.orders': 'लिए गए ऑर्डर', 'q.garments': 'कपड़े', 'q.value': 'ऑर्डर की कीमत', 'q.received': 'मिले पैसे', 'q.delivered': 'दिए गए',
+  'q.phoneNone': '{name} का फ़ोन सेव नहीं है।', 'q.call': 'कॉल करें', 'q.sendBalance': 'बाकी की याद भेजें', 'q.sendReady': 'तैयार का संदेश भेजें',
+  'q.trialOn': 'ट्रायल {date}', 'q.noOrders': '{name} का अभी कोई ऑर्डर नहीं।', 'q.open': 'खोलें',
 }

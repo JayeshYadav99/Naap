@@ -25,6 +25,7 @@ const SAMPLES: Record<Lang, Sample[]> = {
     { when: 'idle', label: 'Hinglish kurta', text: 'Pooja kurta seena chautis kamar battis lambai byalis, aasteen saadhe bees, parso, advance 500' },
     { when: 'idle', label: 'kurta chest 140', text: 'kurta chest 140' },
     { when: 'idle', label: 'today’s summary', text: "today's summary" },
+    { when: 'idle', label: 'who still owes money', text: 'who still owes money' },
     { when: 'card', label: 'collar is 15, not 15½', text: 'collar is 15, not 15 and a half' },
     { when: 'card', label: 'make delivery Saturday', text: 'make delivery Saturday' },
     { when: 'card', label: 'advance 1000', text: 'advance 1000' },
@@ -36,6 +37,7 @@ const SAMPLES: Record<Lang, Sample[]> = {
     { when: 'idle', label: 'Pooja कुर्ता', text: 'Pooja कुर्ता सीना चौंतीस कमर बत्तीस लंबाई बयालीस, आस्तीन साढ़े बीस, परसों, एडवांस 500' },
     { when: 'idle', label: 'कुर्ता सीना 140', text: 'कुर्ता सीना 140' },
     { when: 'idle', label: 'आज का हिसाब', text: 'आज का हिसाब' },
+    { when: 'idle', label: 'किसका पैसा बाकी है', text: 'किसका पैसा बाकी है' },
     { when: 'card', label: 'गला 15', text: 'गला 15' },
     { when: 'card', label: 'डिलीवरी शनिवार', text: 'डिलीवरी शनिवार' },
     { when: 'card', label: 'एडवांस 1000', text: 'एडवांस 1000' },
@@ -137,6 +139,11 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
     }
     if (cmd.kind === 'help') { setResult(null); go('#help'); return }
     if (cmd.kind === 'summary') { setResult({ type: 'summary' }); return }
+    if (cmd.kind === 'owed') { setResult({ type: 'orderList', variant: 'owed' }); return }
+    if (cmd.kind === 'readyList') { setResult({ type: 'orderList', variant: 'ready' }); return }
+    if (cmd.kind === 'trials') { setResult({ type: 'orderList', variant: 'trials' }); return }
+    if (cmd.kind === 'fabricPending') { setResult({ type: 'orderList', variant: 'fabric' }); return }
+    if (cmd.kind === 'stats') { setResult({ type: 'stats', period: cmd.period }); return }
 
     // "ready 47": a token number goes straight to that order.
     const numMatch = cmd.who.match(/^#?(\d+)$/)
@@ -161,6 +168,12 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
     }
     const c = matches[0]
     if (cmd.kind === 'show') { setResult(null); go(`#customer/${c.id}`); return }
+    if (cmd.kind === 'phone') { setResult({ type: 'phone', customer: c }); return }
+    if (cmd.kind === 'lastOrder') {
+      const last = ordersOf(c)[0]
+      if (!last) { setResult({ type: 'info', tone: 'warn', title: t('q.noOrders', { name: c.name }) }); return }
+      setResult(null); go(`#customer/${c.id}/${last.id}`); return
+    }
 
     if (cmd.kind === 'status' || cmd.kind === 'remind') {
       const garment = cmd.garment
@@ -421,6 +434,89 @@ export function TodayView({ data, today, result, setResult, update, undo, toast,
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+          {result?.type === 'orderList' && (() => {
+            const byId = new Map(data.customers.map(c => [c.id, c]))
+            const open = data.orders.filter(o => o.status !== 'delivered')
+            const v = result.variant
+            const todayISO = toISO(today), weekISO = toISO(addDays(today, 7))
+            const list = (v === 'owed' ? data.orders.filter(o => (balanceOf(o) ?? 0) > 0)
+              : v === 'ready' ? open.filter(o => o.status === 'ready')
+              : v === 'trials' ? open.filter(o => o.trialDate && o.trialDate >= todayISO && o.trialDate <= weekISO)
+              : open.filter(o => o.fabric?.from === 'customer' && o.fabric.received === false))
+              .sort((a, b) => v === 'owed' ? (balanceOf(b) ?? 0) - (balanceOf(a) ?? 0) : (v === 'trials' ? a.trialDate!.localeCompare(b.trialDate!) : a.dueDate.localeCompare(b.dueDate)))
+            const title = { owed: 'q.owedTitle', ready: 'q.readyTitle', trials: 'q.trialsTitle', fabric: 'q.fabricTitle' }[v] as Key
+            const empty = { owed: 'q.owedEmpty', ready: 'q.readyEmpty', trials: 'q.trialsEmpty', fabric: 'q.fabricEmpty' }[v] as Key
+            const totalOwed = v === 'owed' ? list.reduce((s, o) => s + (balanceOf(o) ?? 0), 0) : 0
+            return (
+              <div className="result panel tone-info">
+                <h2>{t(title, { n: list.length })}</h2>
+                {v === 'owed' && list.length > 0 && <p className="money due" style={{ alignSelf: 'flex-start' }}><span className="k">{t('q.owedTotal', { amount: rupees(totalOwed) })}</span></p>}
+                {list.length === 0 ? <p className="hint">{t(empty)}</p> : (
+                  <ul className="rows">
+                    {list.map(o => {
+                      const c = byId.get(o.customerId)
+                      if (!c) return null
+                      const msgType = v === 'owed' ? 'balance' : v === 'ready' ? 'ready' : 'reminder'
+                      const msg = buildMessage(msgType, o, c, data.settings)
+                      const detail = v === 'owed' ? t('bal.due', { amount: rupees(balanceOf(o) ?? 0) })
+                        : v === 'trials' ? t('q.trialOn', { date: day(o.trialDate!) })
+                        : t('board.due', { date: day(o.dueDate) })
+                      return (
+                        <li key={o.id} className="orow" style={{ cursor: 'default' }}>
+                          <span>
+                            <button type="button" className="who" style={{ background: 'none', border: 0, padding: 0, textDecoration: 'underline', color: 'inherit', font: 'inherit', fontWeight: 700 }} onClick={() => go(`#customer/${c.id}/${o.id}`)}>#{o.number} {c.name}</button><br />
+                            <span className="what">{items(o)} · {detail}</span>
+                          </span>
+                          {(v === 'owed' || v === 'ready') && (
+                            <a className="btn btn-ok btn-sm" href={whatsappLink(c.phone, msg, data.settings.countryCode)} target="_blank" rel="noopener noreferrer">{v === 'owed' ? t('q.sendBalance') : t('q.sendReady')}</a>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
+            )
+          })()}
+          {result?.type === 'stats' && (() => {
+            const from = result.period === 'today' ? today : result.period === 'week' ? addDays(today, -6) : new Date(today.getFullYear(), today.getMonth(), 1)
+            const fromISO = toISO(from)
+            const inPeriod = (iso?: string) => !!iso && toISO(new Date(iso)) >= fromISO
+            const taken = data.orders.filter(o => inPeriod(o.createdAt))
+            const garments = taken.reduce((s, o) => s + o.items.reduce((a, it) => a + it.quantity, 0), 0)
+            const value = taken.reduce((s, o) => s + (o.total ?? 0), 0)
+            const firstAdvance = taken.reduce((s, o) => s + o.advance - (o.payments ?? []).reduce((a, p) => a + p.amount, 0), 0)
+            const later = data.orders.reduce((s, o) => s + (o.payments ?? []).filter(p => inPeriod(p.at)).reduce((a, p) => a + p.amount, 0), 0)
+            const delivered = data.orders.filter(o => o.status === 'delivered' && inPeriod(o.statusChangedAt)).length
+            const head = { today: 'q.statsToday', week: 'q.statsWeek', month: 'q.statsMonth' }[result.period] as Key
+            return (
+              <div className="result panel tone-info">
+                <h2>{t(head)}</h2>
+                <div className="money-grid">
+                  <div className="money"><div className="k">{t('q.orders')}</div><div className="v">{taken.length}</div></div>
+                  <div className="money"><div className="k">{t('q.garments')}</div><div className="v">{garments}</div></div>
+                  <div className="money"><div className="k">{t('q.value')}</div><div className="v">{rupees(value)}</div></div>
+                  <div className="money"><div className="k">{t('q.received')}</div><div className="v">{rupees(firstAdvance + later)}</div></div>
+                  <div className="money"><div className="k">{t('q.delivered')}</div><div className="v">{delivered}</div></div>
+                </div>
+              </div>
+            )
+          })()}
+          {result?.type === 'phone' && (
+            <div className="result panel tone-info">
+              <h2>{result.customer.name}</h2>
+              {result.customer.phone ? (
+                <>
+                  <p className="num" style={{ fontSize: '1.8rem', fontWeight: 700, userSelect: 'all' }}>{formatPhone(result.customer.phone)}</p>
+                  <div className="row-actions">
+                    <a className="btn btn-primary" href={`tel:+${data.settings.countryCode}${result.customer.phone}`}>{t('q.call')}</a>
+                    <a className="btn btn-ok" href={whatsappLink(result.customer.phone, '', data.settings.countryCode)} target="_blank" rel="noopener noreferrer">WhatsApp</a>
+                    <button type="button" className="btn btn-ghost" onClick={() => go(`#customer/${result.customer.id}`)}>{t('q.open')}</button>
+                  </div>
+                </>
+              ) : <p>{t('q.phoneNone', { name: result.customer.name })}</p>}
             </div>
           )}
           {result?.type === 'summary' && (() => {

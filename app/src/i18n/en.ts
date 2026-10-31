@@ -177,6 +177,14 @@ export const en = {
   'auth.demoText': 'Just looking? The demo shop is filled with sample orders and needs no account. It saves on this device only.', 'auth.demo': 'Try the demo shop',
   'auth.e.shopName': 'Enter your shop name.', 'auth.e.phone': 'Enter a 10-digit mobile number.', 'auth.e.password': 'Password must be at least 6 characters.',
   'auth.e.exists': 'This mobile number already has a shop. Sign in instead.', 'auth.e.wrong': 'Mobile number or password is wrong.', 'auth.e.locked': 'Too many wrong tries. Wait 10 minutes and try again.',
+  'q.owedTitle': 'Who still owes money ({n})', 'q.owedEmpty': 'Nobody owes money right now.', 'q.owedTotal': 'Total to collect: {amount}',
+  'q.readyTitle': 'Ready for pickup ({n})', 'q.readyEmpty': 'Nothing is ready for pickup yet.',
+  'q.trialsTitle': 'Trials in the next 7 days ({n})', 'q.trialsEmpty': 'No trials in the next 7 days.',
+  'q.fabricTitle': 'Fabric not received yet ({n})', 'q.fabricEmpty': 'All fabric has come in.',
+  'q.statsToday': 'Today', 'q.statsWeek': 'Last 7 days', 'q.statsMonth': 'This month',
+  'q.orders': 'Orders taken', 'q.garments': 'Garments', 'q.value': 'Order value', 'q.received': 'Money received', 'q.delivered': 'Delivered',
+  'q.phoneNone': '{name} has no phone saved.', 'q.call': 'Call', 'q.sendBalance': 'Send balance reminder', 'q.sendReady': 'Send ready message',
+  'q.trialOn': 'trial {date}', 'q.noOrders': '{name} has no orders yet.', 'q.open': 'Open',
 } as const
 
 export type Key = keyof typeof en

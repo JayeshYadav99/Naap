@@ -57,7 +57,7 @@ export function sampleData(now = new Date()): AppData {
     {
       id: 'o-rajesh-1', customerId: 'c-rajesh', createdAt: at(-1), dueDate: day(9), status: 'new',
       items: [{ garment: 'suit', quantity: 1, fit: 'regular', measurements: { chest: 42, waist: 38, shoulder: 18, sleeve: 25, length: 30 } }],
-      total: 7500, advance: 2000,
+      total: 7500, advance: 2000, fabric: { from: 'customer', received: false, detail: 'Navy wool, 3 m' },
       rawText: 'Rajesh Patel suit chest 42 waist 38 shoulder 18 sleeve 25 length 30 regular fit, total 7500, advance 2000.',
     },
     {
@@ -75,7 +75,7 @@ export function sampleData(now = new Date()): AppData {
     {
       id: 'o-imran-1', customerId: 'c-imran', createdAt: at(-2), dueDate: day(14), status: 'new',
       items: [{ garment: 'sherwani', quantity: 1, measurements: { chest: 40, waist: 36, hip: 40, shoulder: 18, sleeve: 25, length: 42, collar: 16 } }],
-      total: 12000, advance: 5000, notes: 'Wedding outfit. Trial one week before.',
+      total: 12000, advance: 5000, notes: 'Wedding outfit.', trialDate: day(5),
       rawText: 'Imran Shaikh, 90040 55667, sherwani chest 40 waist 36 hip 40 shoulder 18 sleeve 25 length 42 neck 16, total 12000, advance 5000.',
     },
     {
